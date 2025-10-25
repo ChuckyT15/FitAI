@@ -687,7 +687,7 @@ export default function FitAICameraTab() {
     }
 
     // navigate to the next page (will reload the app if needed)
-    window.location.href = nextUrl;
+    window.location.href = "/home";
   };
 
   // ---------- UI handlers ----------
@@ -891,9 +891,7 @@ export default function FitAICameraTab() {
           </pre>
         </div>
 
-        <div className="flex gap-2">
-          <button className="px-3 py-1 rounded bg-green-600 text-white" onClick={exportMetrics} disabled={!latestMetrics}>Export JSON</button>
-        </div>
+
 
         <div className="text-xs text-gray-500 mt-2">Results are approximate. Tight clothing and good lighting improve tracking.</div>
       </div>
