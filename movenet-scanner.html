@@ -59,6 +59,18 @@
         <button id="clearData" class="secondary">Clear Data</button>
       </div>
       <p style="margin-top:8px;"><small id="status">Status: idle</small></p>
+      <div style="margin-top:8px;">
+        <h5 style="margin:6px 0">Measured thickness (px)</h5>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <div>Left arm: <strong id="leftArmTh">-</strong></div>
+          <div>Right arm: <strong id="rightArmTh">-</strong></div>
+          <div>Left leg: <strong id="leftLegTh">-</strong></div>
+          <div>Right leg: <strong id="rightLegTh">-</strong></div>
+          <div>Torso: <strong id="torsoTh">-</strong></div>
+          <div>Multiplier: <strong id="thMultiplierVal">0.12</strong></div>
+        </div>
+        <label style="display:block;margin-top:8px">Thickness multiplier: <input id="thicknessMultiplier" type="range" min="0.02" max="0.4" step="0.01" value="0.12"></label>
+      </div>
     </div>
 
     <div class="panel">
@@ -81,6 +93,7 @@
     let pose = null;
     let lastResults = null;
     let collectedFrames = []; // store exported frames (optional)
+  let currentThicknesses = { leftArm: null, rightArm: null, leftLeg: null, rightLeg: null, torso: null };
     const statusEl = document.getElementById('status');
 
     // UI elements
@@ -93,8 +106,15 @@
     const minDetectVal = document.getElementById('minDetectVal');
     const smoothing = document.getElementById('smoothing');
   const showAll = document.getElementById('showAll');
-    const dotSize = document.getElementById('dotSize');
-    const showSkeleton = document.getElementById('showSkeleton');
+  const dotSize = document.getElementById('dotSize');
+  const showSkeleton = document.getElementById('showSkeleton');
+  const thicknessMultiplier = document.getElementById('thicknessMultiplier');
+  const thMultiplierVal = document.getElementById('thMultiplierVal');
+  const leftArmTh = document.getElementById('leftArmTh');
+  const rightArmTh = document.getElementById('rightArmTh');
+  const leftLegTh = document.getElementById('leftLegTh');
+  const rightLegTh = document.getElementById('rightLegTh');
+  const torsoTh = document.getElementById('torsoTh');
 
     // Resize canvas to video size
     function resizeCanvasToVideo() {
@@ -112,6 +132,120 @@
       if (showSkeleton.checked) {
         window.drawConnectors(ctx, results.poseLandmarks, window.POSE_CONNECTIONS, {color: '#00FFAA', lineWidth: 2});
       }
+
+      // Draw torso fill (simple quad using shoulders and hips)
+      function drawTorso(fillColor = '#33FFAA44', strokeColor = '#1b7f5f88') {
+        // landmark order: left_shoulder(11), right_shoulder(12), right_hip(24), left_hip(23)
+        const idxs = [11,12,24,23];
+        const pts = idxs.map(i => results.poseLandmarks[i]).filter(Boolean);
+        if (pts.length < 4) return;
+        const cpts = pts.map(p => ({x: p.x * canvas.width, y: p.y * canvas.height, v: p.visibility ?? 1}));
+        const anyVisible = cpts.some(p => p.v > 0.05);
+        if (!anyVisible && !(showAll && showAll.checked)) return;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(cpts[0].x, cpts[0].y);
+        for (let i = 1; i < cpts.length; i++) ctx.lineTo(cpts[i].x, cpts[i].y);
+        ctx.closePath();
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = strokeColor;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function computeTorsoThickness() {
+        // use shoulder and hip horizontal distances as proxy for torso breadth
+        const Ls = results.poseLandmarks[11];
+        const Rs = results.poseLandmarks[12];
+        const Lh = results.poseLandmarks[23];
+        const Rh = results.poseLandmarks[24];
+        if (!Ls || !Rs || !Lh || !Rh) return null;
+        const sdx = (Ls.x - Rs.x) * canvas.width;
+        const hdx = (Lh.x - Rh.x) * canvas.width;
+        const shoulderDist = Math.abs(sdx);
+        const hipDist = Math.abs(hdx);
+        const avgWidth = (shoulderDist + hipDist) / 2;
+        const mult = (thicknessMultiplier && thicknessMultiplier.value) ? Number(thicknessMultiplier.value) : 0.12;
+        const torsoBase = Math.max(6, Math.min(200, Math.round(avgWidth * mult)));
+        return torsoBase;
+      }
+
+      // Draw limb outlines (arms & legs) using widened stroked paths so limbs look like filled shapes
+      // Uses typical MediaPipe Pose landmark indices: shoulders/elbows/wrists and hips/knees/ankles
+      function toCanvas(p) {
+        return { x: p.x * canvas.width, y: p.y * canvas.height, v: p.visibility ?? 1 };
+      }
+
+      function drawLimbOutline(idxs, fillColor = '#00FFAA88', strokeColor = '#004B3388') {
+        const pts = idxs.map(i => results.poseLandmarks[i]).filter(Boolean);
+        if (pts.length < 2) return;
+        const cpts = pts.map(toCanvas);
+        // require at least one visible point unless showAll
+        const anyVisible = cpts.some(p => p.v > 0.05);
+        if (!anyVisible && !(showAll && showAll.checked)) return;
+
+        // compute limb width proportional to the total pixel length of the limb
+        let length = 0;
+        for (let i = 1; i < cpts.length; i++) {
+          const dx = cpts[i].x - cpts[i-1].x;
+          const dy = cpts[i].y - cpts[i-1].y;
+          length += Math.hypot(dx, dy);
+        }
+          // compute thickness using multiplier from UI
+          const mult = (thicknessMultiplier && thicknessMultiplier.value) ? Number(thicknessMultiplier.value) : 0.12;
+          const base = Math.max(4, Math.min(120, Math.round(length * mult)));
+
+        ctx.save();
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+
+        // Outline (outer stroke)
+        ctx.beginPath();
+        ctx.moveTo(cpts[0].x, cpts[0].y);
+        for (let i = 1; i < cpts.length; i++) ctx.lineTo(cpts[i].x, cpts[i].y);
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = base + 10;
+        ctx.stroke();
+
+        // Inner fill stroke
+        ctx.beginPath();
+        ctx.moveTo(cpts[0].x, cpts[0].y);
+        for (let i = 1; i < cpts.length; i++) ctx.lineTo(cpts[i].x, cpts[i].y);
+        ctx.strokeStyle = fillColor;
+        ctx.lineWidth = base;
+        ctx.stroke();
+
+        ctx.restore();
+        return base;
+      }
+
+  // Compute thickness values and update UI
+  const torsoBase = computeTorsoThickness();
+  currentThicknesses.torso = torsoBase;
+  if (torsoTh) torsoTh.textContent = torsoBase === null ? '-' : torsoBase;
+
+  // Shade torso first so limbs draw on top
+  drawTorso('#FFD7A644', '#8a5f12aa');
+
+  // Left arm: 11 (left_shoulder), 13 (left_elbow), 15 (left_wrist)
+  const leftArmBase = drawLimbOutline([11,13,15], '#FFD23Fcc', '#8a5f12cc');
+  currentThicknesses.leftArm = leftArmBase;
+  if (leftArmTh) leftArmTh.textContent = leftArmBase === undefined ? '-' : leftArmBase;
+      // Right arm: 12,14,16
+  const rightArmBase = drawLimbOutline([12,14,16], '#FFD23Fcc', '#8a5f12cc');
+  currentThicknesses.rightArm = rightArmBase;
+  if (rightArmTh) rightArmTh.textContent = rightArmBase === undefined ? '-' : rightArmBase;
+      // Left leg: 23 (left_hip),25 (left_knee),27 (left_ankle)
+  const leftLegBase = drawLimbOutline([23,25,27], '#7FD6FFcc', '#24687Acc');
+  currentThicknesses.leftLeg = leftLegBase;
+  if (leftLegTh) leftLegTh.textContent = leftLegBase === undefined ? '-' : leftLegBase;
+      // Right leg: 24,26,28
+  const rightLegBase = drawLimbOutline([24,26,28], '#7FD6FFcc', '#24687Acc');
+  currentThicknesses.rightLeg = rightLegBase;
+  if (rightLegTh) rightLegTh.textContent = rightLegBase === undefined ? '-' : rightLegBase;
 
       // Draw dots for each landmark
       const r = Number(dotSize.value);
@@ -218,7 +352,8 @@
         when: (new Date()).toISOString(),
         width: video.videoWidth || null,
         height: video.videoHeight || null,
-        landmarks: lastResults.poseLandmarks.map((lm, i) => ({index:i, x: lm.x, y: lm.y, z: lm.z ?? 0, visibility: lm.visibility ?? 1}))
+        landmarks: lastResults.poseLandmarks.map((lm, i) => ({index:i, x: lm.x, y: lm.y, z: lm.z ?? 0, visibility: lm.visibility ?? 1})),
+        thicknesses: currentThicknesses
       };
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       const url = URL.createObjectURL(blob);
@@ -281,6 +416,12 @@
     smoothing.addEventListener('change', () => {
       if (pose) pose.setOptions({smoothLandmarks: smoothing.checked});
     });
+    if (thicknessMultiplier) {
+      thMultiplierVal.textContent = thicknessMultiplier.value;
+      thicknessMultiplier.addEventListener('input', () => {
+        thMultiplierVal.textContent = thicknessMultiplier.value;
+      });
+    }
 
     // When the video metadata is ready (dimensions), resize canvas
     video.addEventListener('loadedmetadata', resizeCanvasToVideo);
