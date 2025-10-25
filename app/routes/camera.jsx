@@ -690,8 +690,8 @@ export default function FitAICameraTab() {
     // navigate to the next page (will reload the app if needed)
     window.location.href = "/home";
   };
-
-  // ---------- UI handlers ----------
+  
+  // ----------- UI handlers ----------
   const handleStart = async () => {
     // Reset capture state so countdown can run fresh
     triggeredRef.current = false;
