@@ -4,6 +4,6 @@ export default [
   index("routes/intro.tsx"),
   route("home", "routes/home.tsx"),
   route("form", "routes/form.tsx"),
-  route("camera", "routes/camera.tsx"),
+  route("camera", "routes/camera.jsx"),
   route("analytics", "routes/analytics.tsx")
 ] satisfies RouteConfig;

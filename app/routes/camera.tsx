@@ -32,8 +32,8 @@ export default function Camera() {
       {/* Back Button - Upper Left */}
       <Link
         to="/"
-        className="absolute top-6 left-6 bg-white/20 backdrop-blur-sm text-gray-600 px-4 py-2 rounded-full font-medium text-sm hover:bg-white/30 transition-all duration-300 border border-white/30 hover:border-white/50 z-10"
-        style={{ fontFamily: 'Playfair Display, serif' }}
+        className="absolute top-6 left-6 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full font-medium text-sm hover:bg-white/30 transition-all duration-300 border border-white/30 hover:border-white/50 z-10"
+        style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}
       >
         ← Back
       </Link>
@@ -57,9 +57,9 @@ export default function Camera() {
 
       {/* Next Button */}
       <Link
-        to="/analytics"
-        className="bg-gray-800/20 backdrop-blur-sm text-black px-8 py-3 rounded-lg font-medium text-lg hover:bg-gray-800/30 transition-all duration-300 border border-gray-600/30 hover:border-gray-600/50 inline-block animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300"
-        style={{ fontFamily: 'Playfair Display, serif' }}
+        to="/home"
+        className="bg-gray-800/20 backdrop-blur-sm px-8 py-3 rounded-lg font-medium text-lg hover:bg-gray-800/30 transition-all duration-300 border border-gray-600/30 hover:border-gray-600/50 inline-block animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300"
+        style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}
       >
         Analyze Photo
       </Link>
