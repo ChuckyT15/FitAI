@@ -186,8 +186,14 @@ class GeminiAPI {
         // Add database context if available
         if (databaseContext) {
             systemPrompt += databaseContext;
+            systemPrompt += '\n\n🎯 RESPONSE INSTRUCTIONS:\n';
+            systemPrompt += '- FACILITIES: Only mention what\'s in the database above (don\'t add facilities from your general knowledge)\n';
+            systemPrompt += '- NUTRITION: Always provide calorie estimates for common foods, even if not in database\n';
+            systemPrompt += '- NEVER say "I don\'t have that in my database" for basic nutrition questions\n';
+            systemPrompt += '- Example: "3 grilled cheese sandwiches are typically about 900-1200 calories total (300-400 each)"\n';
+            systemPrompt += '- Be helpful and provide actionable nutrition information\n';
         } else {
-            systemPrompt += '\nNo specific database information found for this query. Provide general fitness/nutrition guidance.\n';
+            systemPrompt += '\nNo specific database information found for this query. Provide general fitness/nutrition guidance with reasonable estimates.\n';
         }
 
         const fullPrompt = systemPrompt + contextPrompt + `User: ${message}\nAssistant:`;

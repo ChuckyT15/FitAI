@@ -49,6 +49,7 @@ class SupabaseDB {
             // Exercise & Training
             'exercise', 'workout', 'training', 'fitness', 'gym', 'muscle', 'strength', 'cardio', 'lift', 'rep', 'set',
             'push', 'pull', 'squat', 'deadlift', 'bench', 'run', 'jog', 'walk', 'swim', 'bike', 'cycling',
+            'climb', 'climbing', 'rock', 'wall', 'bouldering', 'rappelling', 'belay',
             // Body parts
             'chest', 'back', 'legs', 'arms', 'shoulders', 'abs', 'core', 'biceps', 'triceps', 'glutes', 'calves',
             // Nutrition
@@ -80,6 +81,7 @@ class SupabaseDB {
         }
 
         console.log('🔍 Querying database for context with message:', userMessage);
+        console.log('🔍 DATABASE QUERY CALLED - THIS SHOULD APPEAR FOR EVERY MESSAGE!');
 
         try {
             // First check if the message is fitness-related
@@ -97,6 +99,7 @@ class SupabaseDB {
             const keywords = this.extractKeywords(userMessage);
             console.log('📝 Extracted keywords:', keywords);
             console.log('📝 Original message:', userMessage);
+            console.log('🧗 CLIMBING KEYWORDS CHECK:', keywords.filter(word => ['climb', 'climbing', 'wall', 'rock', 'bouldering'].includes(word.toLowerCase())));
             let contextData = [];
 
             // Search exercises table
@@ -135,7 +138,7 @@ class SupabaseDB {
             }
 
             // Search college gyms table
-            if (keywords.some(word => ['gym', 'gyms', 'facility', 'facilities', 'center', 'centers', 'location', 'campus', 'hours', 'access'].includes(word.toLowerCase()))) {
+            if (keywords.some(word => ['gym', 'gyms', 'facility', 'facilities', 'center', 'centers', 'location', 'campus', 'hours', 'access', 'climb', 'climbing', 'wall', 'rock', 'bouldering'].includes(word.toLowerCase()))) {
                 console.log('🏢 Searching college gyms table...');
                 // Create smart search terms (handle singular/plural)
                 const searchTerms = [];
@@ -150,6 +153,11 @@ class SupabaseDB {
                 // Add common gym-related terms
                 searchTerms.push('fitness', 'recreation', 'training');
                 
+                // Add climbing-specific terms if climbing keywords detected
+                if (keywords.some(word => ['climb', 'climbing', 'wall', 'rock', 'bouldering'].includes(word.toLowerCase()))) {
+                    searchTerms.push('climb', 'climbing', 'wall', 'rock', 'bouldering', 'arc');
+                }
+                
                 const { data: gyms } = await this.supabase
                     .from('college_gyms')
                     .select('*')
@@ -159,6 +167,11 @@ class SupabaseDB {
                 console.log('🏢 Gyms found:', gyms?.length || 0);
                 if (gyms?.length > 0) {
                     console.log('🏢 Gym data:', gyms);
+                    console.log('🏢 DETAILED GYM INFO:', gyms.map(gym => ({
+                        name: gym.name,
+                        amenities: gym.amenities,
+                        description: gym.description
+                    })));
                     contextData.push({
                         type: 'college_gyms',
                         data: gyms
