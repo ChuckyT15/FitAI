@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Webcam Body Scanner (MediaPipe Pose)</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; margin: 0; background: #111; color: #eee; display: flex; gap: 16px; align-items: flex-start; padding: 16px; }
+    #container { position: relative; width: 720px; max-width: calc(100vw - 200px); }
+    video { display:block; width:100%; border-radius: 8px; transform: scaleX(-1); /* mirror for user-friendly view */ }
+    canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; transform: scaleX(-1); } 
+    #controls { min-width: 200px; max-width: 320px; }
+    .panel { background:#151515; padding:12px; border-radius:8px; margin-bottom:12px; box-shadow: 0 6px 18px rgba(0,0,0,0.6); }
+    label { display:block; margin:6px 0; font-size:14px; }
+    input[type=range] { width:100%; }
+    button { background:#0ea5a4; border:none; color:#062323; padding:8px 12px; border-radius:6px; cursor:pointer; font-weight:600; }
+    button.secondary { background:#2b6f9e; color:white; }
+    small { color:#9aa; }
+  </style>
+</head>
+<body>
+  <div id="container" class="panel">
+    <video id="video" autoplay playsinline></video>
+    <canvas id="overlay"></canvas>
+  </div>
+
+  <div id="controls">
+    <div class="panel">
+      <h3 style="margin:0 0 8px 0">Scanner Controls</h3>
+      <label>Model complexity
+        <select id="complexity">
+          <option value="0">Light (fast)</option>
+          <option value="1">Default</option>
+          <option value="2" selected>Heavy (more accurate)</option>
+        </select>
+      </label>
+
+      <label>Min detection confidence: <span id="minDetectVal">0.30</span></label>
+      <input id="minDetect" type="range" min="0" max="1" step="0.05" value="0.3">
+
+      <label>Smooth landmarks: <input id="smoothing" type="checkbox" checked></label>
+      <label>Show all landmarks (ignore visibility): <input id="showAll" type="checkbox"></label>
+
+      <label>Dot size: <input id="dotSize" type="range" min="2" max="12" value="6"></label>
+
+      <label>Show skeleton: <input id="showSkeleton" type="checkbox" checked></label>
+
+      <div style="margin-top:10px; display:flex; gap:8px;">
+        <button id="startBtn">Start Camera</button>
+        <button id="stopBtn" class="secondary">Stop</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h4 style="margin:0 0 8px 0">Export</h4>
+      <small>Save the latest detected landmark coordinates as JSON.</small>
+      <div style="margin-top:8px; display:flex; gap:8px;">
+        <button id="saveJson">Save JSON</button>
+        <button id="clearData" class="secondary">Clear Data</button>
+      </div>
+      <p style="margin-top:8px;"><small id="status">Status: idle</small></p>
+    </div>
+
+    <div class="panel">
+      <h4 style="margin:0 0 8px 0">Privacy</h4>
+      <small>All processing is local — frames & landmarks are not uploaded anywhere by this page. Use responsibly.</small>
+    </div>
+  </div>
+
+  <!-- MediaPipe & utils (served from jsdelivr CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+  <script>
+    // Globals
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('overlay');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    let camera = null;
+    let pose = null;
+    let lastResults = null;
+    let collectedFrames = []; // store exported frames (optional)
+    const statusEl = document.getElementById('status');
+
+    // UI elements
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const saveJsonBtn = document.getElementById('saveJson');
+    const clearDataBtn = document.getElementById('clearData');
+    const complexitySelect = document.getElementById('complexity');
+    const minDetect = document.getElementById('minDetect');
+    const minDetectVal = document.getElementById('minDetectVal');
+    const smoothing = document.getElementById('smoothing');
+  const showAll = document.getElementById('showAll');
+    const dotSize = document.getElementById('dotSize');
+    const showSkeleton = document.getElementById('showSkeleton');
+
+    // Resize canvas to video size
+    function resizeCanvasToVideo() {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+    }
+
+    // Draw landmarks (dots) and optionally skeleton
+    function drawResults(results) {
+      if (!results || !results.poseLandmarks) return;
+      resizeCanvasToVideo();
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+
+      // Optionally draw skeleton using MediaPipe drawing utils
+      if (showSkeleton.checked) {
+        window.drawConnectors(ctx, results.poseLandmarks, window.POSE_CONNECTIONS, {color: '#00FFAA', lineWidth: 2});
+      }
+
+      // Draw dots for each landmark
+      const r = Number(dotSize.value);
+      ctx.fillStyle = '#FFD23F';
+      for (let i = 0; i < results.poseLandmarks.length; i++) {
+        const lm = results.poseLandmarks[i];
+        // lm.x and lm.y are normalized [0..1], where origin is top-left
+        const x = lm.x * canvas.width;
+        const y = lm.y * canvas.height;
+        // confidence/visibility might be in lm.visibility
+        const visible = (lm.visibility === undefined) ? 1 : lm.visibility;
+        // If "showAll" is checked, draw all landmarks regardless of visibility.
+        // Otherwise only draw landmarks above a modest visibility threshold so arms/legs are still captured.
+        const visibilityThreshold = 0.05; // low threshold to include limbs with lower confidence
+        if (showAll && showAll.checked) {
+          ctx.beginPath();
+          ctx.arc(x, y, r * (0.9 + Math.max(0, visible)*0.2), 0, Math.PI*2);
+          ctx.fill();
+        } else if (visible > visibilityThreshold) {
+          ctx.beginPath();
+          ctx.arc(x, y, r * (0.9 + visible*0.2), 0, Math.PI*2);
+          ctx.fill();
+        }
+      }
+    }
+
+    // Called by MediaPipe pose on each frame's results
+    function onResults(results) {
+      lastResults = results;
+      statusEl.textContent = 'Status: got landmarks';
+      drawResults(results);
+
+      // store a reduced version for export if needed
+      // We keep normalized coordinates and visibility
+      if (results.poseLandmarks) {
+        const frameStamp = {
+          timestamp: Date.now(),
+          landmarks: results.poseLandmarks.map(l => ({x: l.x, y: l.y, z: l.z ?? 0, visibility: l.visibility ?? 1}))
+        };
+        // Optional: keep last 300 frames to avoid memory explosion
+        collectedFrames.push(frameStamp);
+        if (collectedFrames.length > 300) collectedFrames.shift();
+      }
+    }
+
+    async function startCamera() {
+      // Initialize MediaPipe Pose
+      if (!pose) {
+        pose = new window.Pose({
+          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+        });
+        pose.setOptions({
+          modelComplexity: Number(complexitySelect.value),
+          smoothLandmarks: smoothing.checked,
+          minDetectionConfidence: Number(minDetect.value),
+          minTrackingConfidence: 0.5
+        });
+        pose.onResults(onResults);
+      } else {
+        // update options on restart
+        pose.setOptions({
+          modelComplexity: Number(complexitySelect.value),
+          smoothLandmarks: smoothing.checked,
+          minDetectionConfidence: Number(minDetect.value),
+        });
+      }
+
+      // Start camera using MediaPipe Camera utility
+      camera = new window.Camera(video, {
+        onFrame: async () => {
+          await pose.send({image: video});
+        },
+        width: 1280,
+        height: 720
+      });
+
+      try {
+        camera.start();
+        statusEl.textContent = 'Status: camera started (waiting for frames)';
+      } catch (err) {
+        console.error('Camera start failed:', err);
+        statusEl.textContent = 'Status: camera failed — check permissions';
+      }
+    }
+
+    function stopCamera() {
+      if (camera) {
+        try {
+          camera.stop();
+        } catch (e) { /* ignore */ }
+        camera = null;
+      }
+      statusEl.textContent = 'Status: stopped';
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+    }
+
+    // Save JSON of the last frame or collected frames
+    function saveJson() {
+      if (!lastResults || !lastResults.poseLandmarks) {
+        alert('No landmarks detected yet — move into view of the camera and press Save again.');
+        return;
+      }
+      const payload = {
+        when: (new Date()).toISOString(),
+        width: video.videoWidth || null,
+        height: video.videoHeight || null,
+        landmarks: lastResults.poseLandmarks.map((lm, i) => ({index:i, x: lm.x, y: lm.y, z: lm.z ?? 0, visibility: lm.visibility ?? 1}))
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pose_${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      statusEl.textContent = 'Status: JSON saved';
+    }
+
+    // Export all collected frames
+    function saveAllCollected() {
+      if (collectedFrames.length === 0) {
+        alert('No frames collected.');
+        return;
+      }
+      const payload = {when: new Date().toISOString(), frames: collectedFrames};
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pose_frames_${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      statusEl.textContent = 'Status: collected frames exported';
+    }
+
+    // Wire up UI
+    startBtn.addEventListener('click', () => {
+      startCamera();
+    });
+    stopBtn.addEventListener('click', () => {
+      stopCamera();
+    });
+    saveJsonBtn.addEventListener('click', () => {
+      // Choose: save only last frame or all frames based on Ctrl key
+      if (window.event && window.event.shiftKey) {
+        saveAllCollected();
+      } else {
+        saveJson();
+      }
+    });
+    clearDataBtn.addEventListener('click', () => {
+      collectedFrames = [];
+      statusEl.textContent = 'Status: cleared collected frames';
+    });
+
+    minDetect.addEventListener('input', () => {
+      minDetectVal.textContent = minDetect.value;
+      if (pose) pose.setOptions({minDetectionConfidence: Number(minDetect.value)});
+    });
+    complexitySelect.addEventListener('change', () => {
+      if (pose) pose.setOptions({modelComplexity: Number(complexitySelect.value)});
+    });
+    smoothing.addEventListener('change', () => {
+      if (pose) pose.setOptions({smoothLandmarks: smoothing.checked});
+    });
+
+    // When the video metadata is ready (dimensions), resize canvas
+    video.addEventListener('loadedmetadata', resizeCanvasToVideo);
+
+    // Stop camera when page is unloaded
+    window.addEventListener('beforeunload', () => {
+      stopCamera();
+    });
+
+    // Auto-start attempt: useful on desktop when allowed
+    // Comment this out if you prefer to tap Start manually
+    //startCamera();
+  </script>
+</body>
+</html>
