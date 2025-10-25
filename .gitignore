@@ -2,4 +2,5 @@
 .env
 /node_modules/
 
-# React Router
+# Chatbot configuration
+public/js/config.js
