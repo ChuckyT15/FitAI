@@ -57,7 +57,7 @@ export default function Camera() {
 
       {/* Next Button */}
       <Link
-        to="/analytics"
+        to="/home"
         className="bg-gray-800/20 backdrop-blur-sm px-8 py-3 rounded-lg font-medium text-lg hover:bg-gray-800/30 transition-all duration-300 border border-gray-600/30 hover:border-gray-600/50 inline-block animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300"
         style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}
       >
