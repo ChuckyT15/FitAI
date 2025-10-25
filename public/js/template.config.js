@@ -2,10 +2,10 @@
 const CONFIG = {
     // Site Information
     site: {
-        title: import.meta.env.VITE_APP_TITLE || 'FitAI',
+        title: 'FitAI',
         description: 'A customizable AI-powered fitness application',
         author: 'FitAI Team',
-        version: import.meta.env.VITE_APP_VERSION || '1.0.0',
+        version: '1.0.0',
         logo: null // Set to image path if you have a logo
     },
 
