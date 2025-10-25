@@ -9,12 +9,13 @@ export default function FitAICameraTab() {
   const bodypixRef = useRef(null);
   const rafRef = useRef(null);
 
-  const [status, setStatus] = useState("idle");
+  const [status, setStatus] = useState("running");
   const [consentGiven, setConsentGiven] = useState(false);
+  const [cameraOn, setCameraOn] = useState(false);
   const [scaleCmPerPixel, setScaleCmPerPixel] = useState(null);
   const [knownHeightCm, setKnownHeightCm] = useState(175);
   const [latestMetrics, setLatestMetrics] = useState(null);
-  const [prompt, setPrompt] = useState("Give camera permission and press Start");
+  const [prompt, setPrompt] = useState("Step into view & pose so your torso is visible — show shoulders, hips and at least one ankle");
   const [useSegmentation, setUseSegmentation] = useState(true);
 
   // countdown state (null = not counting)
@@ -118,6 +119,7 @@ export default function FitAICameraTab() {
   };
 
   useEffect(() => stopCamera, []);
+
 
   // ---------- canvas & sizing ----------
   const syncCanvasSize = () => {
@@ -317,9 +319,9 @@ export default function FitAICameraTab() {
         ctx.fillText(`Hold still: ${countdownRemaining}s`, canvasCssW / 2, 40);
       } else {
         // clear instruction depending on inBox
-        ctx.font = "18px sans-serif";
-        ctx.fillStyle = "rgba(255,255,255,0.95)";
-        ctx.fillText(inBox ? "In position — hold still to capture" : "Move to box to align your torso", canvasCssW / 2, 30);
+       // ctx.font = "18px sans-serif";
+       // ctx.fillStyle = "rgba(255,255,255,0.95)";
+       // ctx.fillText(inBox ? "In position — hold still to capture" : "Move to box to align your torso", canvasCssW / 2, 30);
       }
 
       ctx.restore();
@@ -689,10 +691,9 @@ export default function FitAICameraTab() {
     // navigate to the next page (will reload the app if needed)
     window.location.href = "/home";
   };
-
-  // ---------- UI handlers ----------
+  
+  // ----------- UI handlers ----------
   const handleStart = async () => {
-    if (!consentGiven) return alert("Please give consent to use the camera.");
     // Reset capture state so countdown can run fresh
     triggeredRef.current = false;
     inBoxSinceRef.current = null;
@@ -714,6 +715,21 @@ export default function FitAICameraTab() {
       console.error(e);
       setStatus("error");
       setPrompt("Failed to load models or camera");
+    }
+  };
+
+  // Camera toggle handler
+  const handleCameraToggle = async () => {
+    if (cameraOn) {
+      // Turn off camera
+      stopCamera();
+      setCameraOn(false);
+      setStatus("stopped");
+    } else {
+      // Turn on camera
+      setConsentGiven(true);
+      setCameraOn(true);
+      await handleStart();
     }
   };
 
@@ -804,96 +820,93 @@ export default function FitAICameraTab() {
           zIndex: 0,
         }}
       >
-        <video
-          ref={videoRef}
-          className="absolute top-0 left-0"
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            transform: "scaleX(-1)",
-          }}
-          playsInline
-          muted
-        />
-        <canvas
-          ref={canvasRef}
-          className="absolute top-0 left-0 pointer-events-none"
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: 10,
-            transform: "scaleX(-1)",
-          }}
-        />
+        {cameraOn && (
+          <video
+            ref={videoRef}
+            className="absolute top-0 left-0"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transform: "scaleX(-1)",
+            }}
+            playsInline
+            muted
+          />
+        )}
+        {cameraOn && (
+          <canvas
+            ref={canvasRef}
+            className="absolute top-0 left-0 pointer-events-none"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              zIndex: 10,
+              transform: "scaleX(-1)",
+            }}
+          />
+        )}
         <canvas ref={maskCanvasRef} style={{ display: "none" }} />
       </div>
 
-      {/* Controls overlay (keeps your original controls accessible) */}
-      <div
-        style={{
-          position: "fixed",
-          right: 16,
-          top: 16,
-          width: 320,
-          maxWidth: "calc(100vw - 32px)",
-          zIndex: 20,
-          background: "rgba(255,255,255,0.95)",
-          borderRadius: 8,
-          padding: 12,
-          boxShadow: "0 6px 18px rgba(0,0,0,0.25)",
-        }}
-      >
-        <h2 className="text-lg font-semibold mb-1">FitAI — Camera</h2>
-        <p className="text-xs text-gray-600 mb-2">Position yourself in the box, calibrate, or hold still while centered to auto-capture.</p>
-
-        <label className="flex items-center gap-2 mb-2 text-sm">
-          <input type="checkbox" checked={consentGiven} onChange={(e) => setConsentGiven(e.target.checked)} />
-          I consent to use my camera for analysis
-        </label>
-
-        <div className="flex gap-2 mb-2 flex-wrap">
-          <button className="px-3 py-1 rounded bg-blue-600 text-white" onClick={handleStart} disabled={!consentGiven || status === "running"}>
-            Start
-          </button>
-          <button className="px-3 py-1 rounded bg-red-500 text-white" onClick={stopCamera}>Stop</button>
-          <button className="px-3 py-1 rounded bg-gray-200" onClick={() => setUseSegmentation((s) => !s)}>
-            Segmentation: {useSegmentation ? "On" : "Off"}
-          </button>
+       {/* Controls overlay (centered) */}
+       <div
+         style={{
+           position: "fixed",
+           left: "50%",
+           top: 16,
+           transform: "translateX(-50%)",
+           width: 600,
+           maxWidth: "calc(100vw - 32px)",
+           zIndex: 20,
+           background: "rgba(255,255,255,0.75)",
+           borderRadius: 12,
+           padding: 16,
+           boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
+         }}
+       >
+        <h2 className="text-xl font-bold text-gray-900 mb-2 text-center">FitAI Scan</h2>
+        
+        {/* Camera Toggle */}
+        <div className="flex items-center justify-center mb-3">
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={cameraOn}
+              onChange={handleCameraToggle}
+              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <span className="text-sm font-medium text-gray-700">
+              {cameraOn ? 'Camera On' : 'Camera Off'}
+            </span>
+          </label>
         </div>
 
-        <div className="mb-2">
-          <div className="text-sm font-medium">Calibration</div>
-          <div className="text-xs text-gray-700 mt-1">Options: credit-card (fast) or enter known height.</div>
-          <div className="flex gap-2 mt-2 flex-wrap">
-            <button className="px-2 py-1 rounded bg-yellow-400" onClick={handleCalibrateCard}>Calibrate (Card)</button>
-            <div className="flex items-center gap-2">
-              <input className="w-20 px-2 py-1 rounded border" type="number" value={knownHeightCm} onChange={(e) => setKnownHeightCm(Number(e.target.value))} />
-              <button className="px-2 py-1 rounded bg-yellow-400" onClick={handleCalibrateHeight}>Calibrate (Height)</button>
-            </div>
-          </div>
-        </div>
+        {cameraOn && (
+          <>
+            <p className="text-sm font-bold text-gray-800 mb-2 text-center">Stand inside the frame and stay still for 3 seconds to record your measurements</p>
 
-        <div className="mb-1 text-sm">Status: <span className="font-medium">{status}</span></div>
-        <div className="mb-1 text-sm">Prompt: <span className="font-medium">{prompt}</span></div>
-        <div className="mb-2 text-sm">Scale: <span className="font-medium">{scaleCmPerPixel ? `${(scaleCmPerPixel*100).toFixed(3)} cm / px` : "not set"}</span></div>
+            {countdownRemaining !== null && (
+              <div className="text-center">
+                <p className="text-xl font-bold text-black">Hold still: {countdownRemaining}s</p>
+              </div>
+            )}
+          </>
+        )}
 
-        <div className="mb-2">
-          <div className="text-sm font-medium">Latest metrics</div>
-          <pre className="text-xs bg-gray-100 p-2 rounded max-h-40 overflow-auto">
-            {latestMetrics ? JSON.stringify(latestMetrics, null, 2) : "No metrics yet — get in position & calibrate"}
-          </pre>
-        </div>
+        {!cameraOn && (
+          <p className="text-sm text-gray-600 text-center">Toggle camera on to start body analysis</p>
+        )}
 
 
 
-        <div className="text-xs text-gray-500 mt-2">Results are approximate. Tight clothing and good lighting improve tracking.</div>
+
       </div>
     </div>
   );
