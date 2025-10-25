@@ -32,10 +32,10 @@ export default function Form() {
       <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-6 md:p-8 w-full max-w-lg border border-white/20">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl md:text-4xl font-semibold text-gray-800 mb-3" style={{ fontFamily: 'Playfair Display, serif' }}>
+          <h1 className="text-3xl md:text-4xl font-semibold style={{ color: '#000000' }} mb-3" style={{ fontFamily: 'Playfair Display, serif' }}>
             Tell Us About Yourself
           </h1>
-          <p className="text-gray-500 text-sm">
+          <p className="style={{ color: '#000000' }} text-sm">
             Help us create your perfect workout plan
           </p>
         </div>
@@ -45,7 +45,7 @@ export default function Form() {
           {/* Personal Information */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label className="block text-xs font-medium style={{ color: '#000000' }} mb-1">
                 Height (cm)
               </label>
               <input
@@ -55,7 +55,7 @@ export default function Form() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label className="block text-xs font-medium style={{ color: '#000000' }} mb-1">
                 Weight (kg)
               </label>
               <input
@@ -68,7 +68,7 @@ export default function Form() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label className="block text-xs font-medium style={{ color: '#000000' }} mb-1">
                 Age
               </label>
               <input
@@ -78,7 +78,7 @@ export default function Form() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label className="block text-xs font-medium style={{ color: '#000000' }} mb-1">
                 Gender
               </label>
               <select className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm">
@@ -92,7 +92,7 @@ export default function Form() {
 
           {/* Fitness Level */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label className="block text-xs font-medium style={{ color: '#000000' }} mb-1">
               Fitness Level
             </label>
             <select className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm">
@@ -105,7 +105,7 @@ export default function Form() {
 
           {/* Goals */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label className="block text-xs font-medium style={{ color: '#000000' }} mb-1">
               Primary Goal
             </label>
             <select className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm">
@@ -123,7 +123,7 @@ export default function Form() {
           <div className="flex gap-3 pt-4">
             <Link
               to="/"
-              className="flex-1 bg-gray-100 text-gray-600 px-4 py-2 rounded-full font-medium text-sm hover:bg-gray-200 transition-colors text-center"
+              className="flex-1 bg-gray-100 style={{ color: '#000000' }} px-4 py-2 rounded-full font-medium text-sm hover:bg-gray-200 transition-colors text-center"
               style={{ fontFamily: 'Playfair Display, serif' }}
             >
               Back
