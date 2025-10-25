@@ -209,7 +209,7 @@ export default function FitAIChatbot() {
       {/* Floating Button */}
       <button
         onClick={handleChatToggle}
-        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg transition-all ${
+        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg transition-all overflow-hidden ${
           isOpen ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'
         }`}
         aria-label={isOpen ? 'Close FitAI' : 'Open FitAI'}
@@ -225,11 +225,56 @@ export default function FitAIChatbot() {
         )}
       </button>
 
-      {/* Arnold Character Interface - Perfectly aligned */}
+      {/* Arnold Character Interface - Text above image */}
       {isOpen && (
         <div className="fixed bottom-24 right-6 z-40 flex flex-col items-center">
           
-          {/* Arnold Character - Mirrored and positioned above chat box with slide animation */}
+          {/* Arnold's Speech Bubble - Above the character */}
+          {arnoldVisible && (messages.filter(m => m.sender === 'bot').length > 0 || isLoading) && (
+            <div className="mb-4 relative">
+              <div className="min-w-56 max-w-80 max-h-50 w-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-3 overflow-y-scroll scrollbar-hide animate-fadeIn"
+                style={{
+                  scrollbarWidth: 'none', /* Firefox */
+                  msOverflowStyle: 'none', /* IE and Edge */
+                }}>
+              {isLoading ? (
+                <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
+                  <span className="text-sm font-medium">Arnold is thinking</span>
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-gray-800 dark:text-gray-200 text-sm leading-relaxed">
+                  {messages.filter(m => m.sender === 'bot').slice(-1).map(message => (
+                    <div key={message.id}>
+                      <div 
+                        className="prose prose-sm prose-gray dark:prose-invert max-w-none"
+                        dangerouslySetInnerHTML={{
+                          __html: message.text
+                            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                            .replace(/\n/g, '<br>')
+                            .replace(/•\s/g, '• ')
+                            .replace(/(\d+\.)\s/g, '<span class="font-medium">$1</span> ')
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+              </div>
+              
+              {/* Speech bubble triangle pointing down - only show when not loading */}
+              {!isLoading && (
+                <div className="absolute bottom-[-12px] left-1/2 transform -translate-x-1/2 translate-x-[-60px] w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[12px] border-t-white dark:border-t-gray-800"></div>
+              )}
+            </div>
+          )}
+
+          {/* Arnold Character - Below the speech bubble */}
           <div className={`relative mb-0 transition-all duration-500 ease-in-out transform ${
             arnoldVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
           }`}>
@@ -242,44 +287,6 @@ export default function FitAIChatbot() {
                 e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 24 24" fill="none" stroke="%23333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>';
               }}
             />
-            
-            {/* Arnold's Speech Bubble */}
-            {arnoldVisible && (messages.filter(m => m.sender === 'bot').length > 0 || isLoading) && (
-              <div className="absolute -left-78 -top-0 min-w-56 max-w-80 max-h-50 w-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-600 p-3 overflow-y-scroll scrollbar-hide after:content-[''] after:absolute after:right-[-12px] after:bottom-4 after:w-0 after:h-0 after:border-t-[12px] after:border-t-transparent after:border-b-[12px] after:border-b-transparent after:border-l-[12px] after:border-l-white dark:after:border-l-gray-800 animate-fadeIn"
-                style={{
-                  scrollbarWidth: 'none', /* Firefox */
-                  msOverflowStyle: 'none', /* IE and Edge */
-                }}>
-                {isLoading ? (
-                  <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
-                    <span className="text-sm font-medium">Arnold is thinking</span>
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-gray-800 dark:text-gray-200 text-sm leading-relaxed">
-                    {messages.filter(m => m.sender === 'bot').slice(-1).map(message => (
-                      <div key={message.id}>
-                        <div 
-                          className="prose prose-sm prose-gray dark:prose-invert max-w-none"
-                          dangerouslySetInnerHTML={{
-                            __html: message.text
-                              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                              .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                              .replace(/\n/g, '<br>')
-                              .replace(/•\s/g, '• ')
-                              .replace(/(\d+\.)\s/g, '<span class="font-medium">$1</span> ')
-                          }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
           {/* Chat Input Box - Speech bubble style */}

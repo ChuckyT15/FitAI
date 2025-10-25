@@ -10,7 +10,8 @@ export default function FitAICameraTab() {
   const rafRef = useRef(null);
 
   const [status, setStatus] = useState("running");
-  const [consentGiven, setConsentGiven] = useState(true);
+  const [consentGiven, setConsentGiven] = useState(false);
+  const [cameraOn, setCameraOn] = useState(false);
   const [scaleCmPerPixel, setScaleCmPerPixel] = useState(null);
   const [knownHeightCm, setKnownHeightCm] = useState(175);
   const [latestMetrics, setLatestMetrics] = useState(null);
@@ -717,15 +718,20 @@ export default function FitAICameraTab() {
     }
   };
 
-  // Auto-start camera on mount
-  useEffect(() => {
-    const autoStart = () => {
-      setTimeout(() => {
-        handleStart();
-      }, 1000);
-    };
-    autoStart();
-  }, []);
+  // Camera toggle handler
+  const handleCameraToggle = async () => {
+    if (cameraOn) {
+      // Turn off camera
+      stopCamera();
+      setCameraOn(false);
+      setStatus("stopped");
+    } else {
+      // Turn on camera
+      setConsentGiven(true);
+      setCameraOn(true);
+      await handleStart();
+    }
+  };
 
   const handleCalibrateCard = () => {
     const assumedPx = canvasRef.current?.width ? canvasRef.current.width / (window.devicePixelRatio || 1) * 0.34 : 220;
@@ -814,34 +820,38 @@ export default function FitAICameraTab() {
           zIndex: 0,
         }}
       >
-        <video
-          ref={videoRef}
-          className="absolute top-0 left-0"
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            transform: "scaleX(-1)",
-          }}
-          playsInline
-          muted
-        />
-        <canvas
-          ref={canvasRef}
-          className="absolute top-0 left-0 pointer-events-none"
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: 10,
-            transform: "scaleX(-1)",
-          }}
-        />
+        {cameraOn && (
+          <video
+            ref={videoRef}
+            className="absolute top-0 left-0"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transform: "scaleX(-1)",
+            }}
+            playsInline
+            muted
+          />
+        )}
+        {cameraOn && (
+          <canvas
+            ref={canvasRef}
+            className="absolute top-0 left-0 pointer-events-none"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              zIndex: 10,
+              transform: "scaleX(-1)",
+            }}
+          />
+        )}
         <canvas ref={maskCanvasRef} style={{ display: "none" }} />
       </div>
 
@@ -862,12 +872,36 @@ export default function FitAICameraTab() {
          }}
        >
         <h2 className="text-xl font-bold text-gray-900 mb-2 text-center">FitAI Scan</h2>
-        <p className="text-sm font-bold text-gray-800 mb-2 text-center">Stand inside the frame and stay still for 3 seconds to record your measurements</p>
+        
+        {/* Camera Toggle */}
+        <div className="flex items-center justify-center mb-3">
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={cameraOn}
+              onChange={handleCameraToggle}
+              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <span className="text-sm font-medium text-gray-700">
+              {cameraOn ? 'Camera On' : 'Camera Off'}
+            </span>
+          </label>
+        </div>
 
-        {countdownRemaining !== null && (
-          <div className="text-center">
-            <p className="text-xl font-bold text-black">Hold still: {countdownRemaining}s</p>
-          </div>
+        {cameraOn && (
+          <>
+            <p className="text-sm font-bold text-gray-800 mb-2 text-center">Stand inside the frame and stay still for 3 seconds to record your measurements</p>
+
+            {countdownRemaining !== null && (
+              <div className="text-center">
+                <p className="text-xl font-bold text-black">Hold still: {countdownRemaining}s</p>
+              </div>
+            )}
+          </>
+        )}
+
+        {!cameraOn && (
+          <p className="text-sm text-gray-600 text-center">Toggle camera on to start body analysis</p>
         )}
 
 
