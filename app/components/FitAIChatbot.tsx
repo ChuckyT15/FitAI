@@ -7,6 +7,14 @@ interface Message {
   timestamp: Date;
 }
 
+// Arnold character poses for random selection
+const CHARACTER_POSES = [
+  '/assets/characters/Arnold_Exclaiming.png',
+  '/assets/characters/Arnold_Explaining.png', 
+  '/assets/characters/Arnold_Flexing.png',
+  '/assets/characters/Arnold_Posing.png'
+];
+
 declare global {
   interface Window {
     FitAIAppReact: any;
@@ -20,6 +28,10 @@ export default function FitAIChatbot() {
   const [isLoading, setIsLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [fitAIApp, setFitAIApp] = useState<any>(null);
+  const [currentCharacterPose, setCurrentCharacterPose] = useState(CHARACTER_POSES[0]);
+  const [poseIndex, setPoseIndex] = useState(0);
+  const [hasUserSentMessage, setHasUserSentMessage] = useState(false);
+  const [arnoldVisible, setArnoldVisible] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Load your FitAI system
@@ -91,6 +103,13 @@ export default function FitAIChatbot() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Cycle through character poses
+  const getNextCharacterPose = () => {
+    const nextIndex = (poseIndex + 1) % CHARACTER_POSES.length;
+    setPoseIndex(nextIndex);
+    return CHARACTER_POSES[nextIndex];
+  };
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -109,6 +128,12 @@ export default function FitAIChatbot() {
     const currentMessage = inputMessage;
     setInputMessage('');
     setIsLoading(true);
+    
+    // Show Arnold after the first user message
+    if (!hasUserSentMessage) {
+      setHasUserSentMessage(true);
+      setTimeout(() => setArnoldVisible(true), 300); // Small delay for smooth animation
+    }
 
     try {
       console.log('🔥 Processing message through your FitAI system:', currentMessage);
@@ -121,6 +146,9 @@ export default function FitAIChatbot() {
       const result = await fitAIApp.processMessage(currentMessage);
       
       if (result.success) {
+        // Change character pose when bot responds
+        setCurrentCharacterPose(getNextCharacterPose());
+        
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
           text: result.response,
@@ -161,11 +189,26 @@ export default function FitAIChatbot() {
     }
   };
 
+  const handleChatToggle = () => {
+    if (isOpen) {
+      // Closing chat - slide Arnold out first
+      setArnoldVisible(false);
+      setTimeout(() => {
+        setIsOpen(false);
+        // Reset states when closing
+        setHasUserSentMessage(false);
+      }, 300); // Wait for slide-out animation
+    } else {
+      // Opening chat
+      setIsOpen(true);
+    }
+  };
+
   return (
     <>
       {/* Floating Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleChatToggle}
         className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg transition-all ${
           isOpen ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'
         }`}
@@ -182,63 +225,90 @@ export default function FitAIChatbot() {
         )}
       </button>
 
-      {/* Chat Window */}
+      {/* Arnold Character Interface - Perfectly aligned */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-40 w-80 h-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col">
-          {/* Header */}
-          <div className="bg-blue-500 text-white p-4 rounded-t-lg">
-            <h3 className="font-semibold">FitAI - Your System</h3>
-            <p className="text-sm opacity-90">Database + AI Working</p>
-          </div>
-
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {messages.map((message) => (
-              <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
-                  message.sender === 'user'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
-                }`}>
-                  {message.text}
-                </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg text-sm">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+        <div className="fixed bottom-24 right-6 z-40 flex flex-col items-center">
+          
+          {/* Arnold Character - Mirrored and positioned above chat box with slide animation */}
+          <div className={`relative mb-0 transition-all duration-500 ease-in-out transform ${
+            arnoldVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+          }`}>
+            <img 
+              src={currentCharacterPose} 
+              alt="Arnold - Your FitAI Coach"
+              className="w-64 h-64 object-contain transition-all duration-500 filter drop-shadow-lg transform scale-x-[-1]"
+              onError={(e) => {
+                // Fallback if image doesn't load
+                e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 24 24" fill="none" stroke="%23333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>';
+              }}
+            />
+            
+            {/* Arnold's Speech Bubble */}
+            {arnoldVisible && (messages.filter(m => m.sender === 'bot').length > 0 || isLoading) && (
+              <div className="absolute -left-78 -top-0 min-w-56 max-w-80 max-h-50 w-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-600 p-3 overflow-y-scroll scrollbar-hide after:content-[''] after:absolute after:right-[-12px] after:bottom-4 after:w-0 after:h-0 after:border-t-[12px] after:border-t-transparent after:border-b-[12px] after:border-b-transparent after:border-l-[12px] after:border-l-white dark:after:border-l-gray-800 animate-fadeIn"
+                style={{
+                  scrollbarWidth: 'none', /* Firefox */
+                  msOverflowStyle: 'none', /* IE and Edge */
+                }}>
+                {isLoading ? (
+                  <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
+                    <span className="text-sm font-medium">Arnold is thinking</span>
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="text-gray-800 dark:text-gray-200 text-sm leading-relaxed">
+                    {messages.filter(m => m.sender === 'bot').slice(-1).map(message => (
+                      <div key={message.id}>
+                        <div 
+                          className="prose prose-sm prose-gray dark:prose-invert max-w-none"
+                          dangerouslySetInnerHTML={{
+                            __html: message.text
+                              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                              .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                              .replace(/\n/g, '<br>')
+                              .replace(/•\s/g, '• ')
+                              .replace(/(\d+\.)\s/g, '<span class="font-medium">$1</span> ')
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
-            <div ref={messagesEndRef} />
           </div>
 
-          {/* Input */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+          {/* Chat Input Box - Speech bubble style */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-4 w-80 relative before:content-[''] before:absolute before:right-[-15px] before:top-6 before:w-0 before:h-0 before:border-t-[15px] before:border-t-transparent before:border-b-[15px] before:border-b-transparent before:border-l-[15px] before:border-l-gray-200 dark:before:border-l-gray-700 after:content-[''] after:absolute after:right-[-12px] after:top-6 after:w-0 after:h-0 after:border-t-[12px] after:border-t-transparent after:border-b-[12px] after:border-b-transparent after:border-l-[12px] after:border-l-white dark:after:border-l-gray-800">
             <div className="flex space-x-2">
               <input
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask about fitness, nutrition, gyms..."
-                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="Ask Arnold about fitness, nutrition, gyms..."
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
                 disabled={isLoading || !isReady}
               />
               <button
                 onClick={sendMessage}
                 disabled={isLoading || !isReady}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
+                className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                 </svg>
               </button>
+            </div>
+            
+            {/* Status indicator */}
+            <div className="mt-2 text-xs text-center">
+              {!isReady && <span className="text-gray-500">Loading Arnold...</span>}
+              {isReady && messages.length === 0 && <span className="text-green-600 dark:text-green-400">💪 Arnold is ready to help!</span>}
             </div>
           </div>
         </div>
