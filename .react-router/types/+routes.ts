@@ -45,7 +45,7 @@ type RouteFiles = {
     id: "routes/form";
     page: "/form";
   };
-  "routes/camera.tsx": {
+  "routes/camera.jsx": {
     id: "routes/camera";
     page: "/camera";
   };
@@ -60,6 +60,6 @@ type RouteModules = {
   "routes/intro": typeof import("./app/routes/intro.tsx");
   "routes/home": typeof import("./app/routes/home.tsx");
   "routes/form": typeof import("./app/routes/form.tsx");
-  "routes/camera": typeof import("./app/routes/camera.tsx");
+  "routes/camera": typeof import("./app/routes/camera.jsx");
   "routes/analytics": typeof import("./app/routes/analytics.tsx");
 };

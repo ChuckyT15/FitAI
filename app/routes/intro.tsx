@@ -204,8 +204,8 @@ export default function Intro() {
           </h1>
           <button
             onClick={scrollToForm}
-            className="bg-gray-800/20 backdrop-blur-sm px-8 py-3 rounded-lg font-medium text-lg hover:bg-gray-800/30 transition-all duration-300 border border-gray-600/30 hover:border-gray-600/50 inline-block"
-            style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}
+            className="bg-black px-8 py-3 rounded-lg font-medium text-lg hover:bg-gray-800 transition-all duration-300 border border-gray-600/30 hover:border-gray-600/50 inline-block"
+            style={{ fontFamily: 'Playfair Display, serif', color: '#FFFFFF' }}
           >
             Get Started
           </button>

@@ -1,5 +1,5 @@
 import type { Route } from "./+types/home";
-import { useState } from "react";
+import React, { useState } from "react";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -30,6 +30,24 @@ export default function Home() {
   const [selectedDay, setSelectedDay] = useState<string | null>("Mon");
   const [expandedExercise, setExpandedExercise] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<string>("analytics");
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+
+  // Loading effect
+  React.useEffect(() => {
+    const loadingInterval = setInterval(() => {
+      setLoadingProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(loadingInterval);
+          setTimeout(() => setIsLoading(false), 200);
+          return 100;
+        }
+        return prev + 2;
+      });
+    }, 80); // 4 seconds total (100 * 80ms = 8000ms, but we're incrementing by 2, so 50 * 80ms = 4000ms)
+
+    return () => clearInterval(loadingInterval);
+  }, []);
 
   const scrollToSection = (sectionId: string) => {
     if (sectionId === 'analytics') {
@@ -163,62 +181,100 @@ export default function Home() {
     return descriptions[day as keyof typeof descriptions] || "Select a workout day to see details.";
   };
 
+  // Loading screen
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center w-full max-w-md mx-auto px-4">
+          <div className="text-6xl font-bold mb-8" style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}>
+            FitAI
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+            <div 
+              className="bg-green-600 h-2 rounded-full transition-all duration-300 ease-out"
+              style={{ width: `${loadingProgress}%` }}
+            ></div>
+          </div>
+          <p className="text-lg" style={{ color: '#000000' }}>
+            Analyzing your photo and generating your personalized plan...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex animate-in fade-in slide-in-from-right-4 duration-700">
       {/* Vertical Navigation Bar */}
-      <div className="w-64 bg-white/90 backdrop-blur-sm border-r border-gray-200 flex flex-col p-6 sticky top-0 h-screen">
+      <div className="w-64 bg-black backdrop-blur-sm border-r border-gray-700 flex flex-col p-6 sticky top-0 h-screen">
         <div className="mb-8">
-          <h1 className="text-2xl font-light mb-2" style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}>
+          <h1 className="text-2xl font-light mb-2" style={{ fontFamily: 'Playfair Display, serif', color: '#FFFFFF' }}>
             FitAI
           </h1>
-          <div className="w-12 h-0.5 bg-gray-300"></div>
+          <div className="w-12 h-0.5 bg-gray-400"></div>
         </div>
 
-        <nav className="space-y-2">
-          <button
-            onClick={() => scrollToSection('analytics')}
-            className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 ${
-              activeSection === 'analytics'
-                ? 'bg-blue-100 border-l-4 border-blue-500'
-                : 'hover:bg-gray-100'
-            }`}
-            style={{ color: '#000000' }}
-          >
-            <div className="flex items-center space-x-3">
-              <span className="text-lg">📊</span>
-              <span className="font-medium">Analytics</span>
-            </div>
+        <nav className="relative">
+          <div className="space-y-12">
+            <button
+              onClick={() => scrollToSection('analytics')}
+              className={`relative w-full text-left px-4 py-6 transition-all duration-200 ${
+                activeSection === 'analytics'
+                  ? 'text-white'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <div className="flex items-center relative">
+                {/* Line connecting to next bullet */}
+                <div className="absolute left-1.5 top-6 w-0.5 h-24 bg-gray-600"></div>
+                <div className={`w-3 h-3 rounded-full border-2 mr-4 transition-all duration-200 relative z-10 ${
+                  activeSection === 'analytics'
+                    ? 'bg-white border-white'
+                    : 'border-gray-400 hover:border-white'
+                }`}></div>
+                <span className="font-medium text-lg">Analytics</span>
+              </div>
             </button>
-          
-          <button
-            onClick={() => scrollToSection('workout')}
-            className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 ${
-              activeSection === 'workout'
-                ? 'bg-blue-100 border-l-4 border-blue-500'
-                : 'hover:bg-gray-100'
-            }`}
-            style={{ color: '#000000' }}
-          >
-            <div className="flex items-center space-x-3">
-              <span className="text-lg">🏋️</span>
-              <span className="font-medium">Workout Plan</span>
-            </div>
+            
+            <button
+              onClick={() => scrollToSection('workout')}
+              className={`relative w-full text-left px-4 py-6 transition-all duration-200 ${
+                activeSection === 'workout'
+                  ? 'text-white'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <div className="flex items-center relative">
+                {/* Line connecting to next bullet */}
+                <div className="absolute left-1.5 top-6 w-0.5 h-24 bg-gray-600"></div>
+                <div className={`w-3 h-3 rounded-full border-2 mr-4 transition-all duration-200 relative z-10 ${
+                  activeSection === 'workout'
+                    ? 'bg-white border-white'
+                    : 'border-gray-400 hover:border-white'
+                }`}></div>
+                <span className="font-medium text-lg">Workout Plan</span>
+              </div>
             </button>
-          
-          <button
-            onClick={() => scrollToSection('nutrition')}
-            className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 ${
-              activeSection === 'nutrition'
-                ? 'bg-blue-100 border-l-4 border-blue-500'
-                : 'hover:bg-gray-100'
-            }`}
-            style={{ color: '#000000' }}
-          >
-            <div className="flex items-center space-x-3">
-              <span className="text-lg">🍎</span>
-              <span className="font-medium">Nutrition Plan</span>
+            
+            <button
+              onClick={() => scrollToSection('nutrition')}
+              className={`relative w-full text-left px-4 py-6 transition-all duration-200 ${
+                activeSection === 'nutrition'
+                  ? 'text-white'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <div className="flex items-center relative">
+                {/* No line for the last bullet */}
+                <div className={`w-3 h-3 rounded-full border-2 mr-4 transition-all duration-200 relative z-10 ${
+                  activeSection === 'nutrition'
+                    ? 'bg-white border-white'
+                    : 'border-gray-400 hover:border-white'
+                }`}></div>
+                <span className="font-medium text-lg">Nutrition Plan</span>
+              </div>
+            </button>
           </div>
-          </button>
         </nav>
         </div>
 
@@ -569,66 +625,95 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Weekly Meal Schedule */}
-              <div className="mb-6">
-                <h4 className="font-semibold mb-4 text-sm" style={{ color: '#000000' }}>Weekly Meal Schedule</h4>
-                <div className="grid grid-cols-7 gap-2">
+              {/* Meal Recommendations */}
+              <div className="bg-gray-50 rounded-xl p-4">
+                <h4 className="font-semibold mb-4 text-sm" style={{ color: '#000000' }}>Recommended Meals</h4>
+                <div className="max-h-[400px] overflow-y-auto space-y-3">
                   {[
-                    { day: "Mon", meals: "High Protein", focus: "Muscle Building" },
-                    { day: "Tue", meals: "Balanced", focus: "Recovery" },
-                    { day: "Wed", meals: "High Protein", focus: "Muscle Building" },
-                    { day: "Thu", meals: "Light", focus: "Cardio Fuel" },
-                    { day: "Fri", meals: "High Protein", focus: "Muscle Building" },
-                    { day: "Sat", meals: "Flexible", focus: "Cheat Day" },
-                    { day: "Sun", meals: "Balanced", focus: "Recovery" }
-                  ].map((day, index) => (
-                    <div
-                      key={day.day}
-                      className={`p-3 rounded-lg cursor-pointer transition-all ${
-                        selectedDay === day.day
-                          ? 'bg-green-100 border-2 border-green-500'
-                          : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
-                      }`}
-                      onClick={() => setSelectedDay(selectedDay === day.day ? null : day.day)}
-                    >
-                      <div className="text-center">
-                        <div className="text-sm font-medium mb-1" style={{ color: '#000000' }}>{day.day}</div>
-                        <div className="text-sm font-semibold mb-1" style={{ color: '#000000' }}>{day.meals}</div>
-                        <div className="text-xs" style={{ color: '#000000' }}>{day.focus}</div>
+                    {
+                      name: "Grilled Chicken Breast with Quinoa",
+                      calories: 420,
+                      diningHall: "Scott Traditions",
+                      description: "Lean protein with complex carbs"
+                    },
+                    {
+                      name: "Salmon Bowl with Sweet Potato",
+                      calories: 380,
+                      diningHall: "Kennedy Commons",
+                      description: "Omega-3 rich with beta-carotene"
+                    },
+                    {
+                      name: "Greek Yogurt Parfait",
+                      calories: 280,
+                      diningHall: "Morrill Traditions",
+                      description: "High protein breakfast option"
+                    },
+                    {
+                      name: "Turkey & Avocado Wrap",
+                      calories: 350,
+                      diningHall: "Scott Traditions",
+                      description: "Balanced macros for lunch"
+                    },
+                    {
+                      name: "Oatmeal with Berries",
+                      calories: 320,
+                      diningHall: "Kennedy Commons",
+                      description: "Fiber-rich morning fuel"
+                    },
+                    {
+                      name: "Grilled Fish Tacos",
+                      calories: 410,
+                      diningHall: "Morrill Traditions",
+                      description: "Lean protein with fresh veggies"
+                    },
+                    {
+                      name: "Protein Smoothie Bowl",
+                      calories: 290,
+                      diningHall: "Scott Traditions",
+                      description: "Post-workout recovery meal"
+                    },
+                    {
+                      name: "Chicken Caesar Salad",
+                      calories: 340,
+                      diningHall: "Kennedy Commons",
+                      description: "Classic with lean protein"
+                    },
+                    {
+                      name: "Veggie Stir Fry with Brown Rice",
+                      calories: 360,
+                      diningHall: "Morrill Traditions",
+                      description: "Plant-based protein option"
+                    },
+                    {
+                      name: "Egg White Omelet",
+                      calories: 250,
+                      diningHall: "Scott Traditions",
+                      description: "High protein, low calorie"
+                    },
+                    {
+                      name: "Grilled Turkey Burger",
+                      calories: 390,
+                      diningHall: "Kennedy Commons",
+                      description: "Lean protein with whole grain bun"
+                    },
+                    {
+                      name: "Quinoa Buddha Bowl",
+                      calories: 430,
+                      diningHall: "Morrill Traditions",
+                      description: "Complete amino acid profile"
+                    }
+                  ].map((meal, index) => (
+                    <div key={index} className="bg-white rounded-lg p-3 border border-gray-200 hover:shadow-md transition-shadow">
+                      <div className="flex items-center justify-between mb-2">
+                        <h5 className="font-medium text-sm" style={{ color: '#000000' }}>{meal.name}</h5>
+                        <span className="text-sm font-semibold text-blue-600">{meal.calories} cal</span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-gray-600">📍 {meal.diningHall}</span>
+                        <span style={{ color: '#000000' }}>{meal.description}</span>
                       </div>
                     </div>
                   ))}
-                </div>
-              </div>
-
-              {/* Sample Meals */}
-              <div className="bg-gray-50 rounded-xl p-4">
-                <h4 className="font-semibold mb-3 text-sm" style={{ color: '#000000' }}>Sample Meals</h4>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <h5 className="font-medium mb-2 text-sm" style={{ color: '#000000' }}>Breakfast</h5>
-                    <p className="text-xs mb-1" style={{ color: '#000000' }}>• Oatmeal with berries & protein powder</p>
-                    <p className="text-xs mb-1" style={{ color: '#000000' }}>• Greek yogurt with nuts</p>
-                    <p className="text-xs" style={{ color: '#000000' }}>• 2 whole eggs</p>
-                  </div>
-                  <div>
-                    <h5 className="font-medium mb-2 text-sm" style={{ color: '#000000' }}>Lunch</h5>
-                    <p className="text-xs mb-1" style={{ color: '#000000' }}>• Grilled chicken breast</p>
-                    <p className="text-xs mb-1" style={{ color: '#000000' }}>• Quinoa & vegetables</p>
-                    <p className="text-xs" style={{ color: '#000000' }}>• Mixed green salad</p>
-                  </div>
-                  <div>
-                    <h5 className="font-medium mb-2 text-sm" style={{ color: '#000000' }}>Dinner</h5>
-                    <p className="text-xs mb-1" style={{ color: '#000000' }}>• Salmon fillet</p>
-                    <p className="text-xs mb-1" style={{ color: '#000000' }}>• Sweet potato & broccoli</p>
-                    <p className="text-xs" style={{ color: '#000000' }}>• Avocado</p>
-                  </div>
-                  <div>
-                    <h5 className="font-medium mb-2 text-sm" style={{ color: '#000000' }}>Snacks</h5>
-                    <p className="text-xs mb-1" style={{ color: '#000000' }}>• Protein shake</p>
-                    <p className="text-xs mb-1" style={{ color: '#000000' }}>• Almonds & fruit</p>
-                    <p className="text-xs" style={{ color: '#000000' }}>• Cottage cheese</p>
-                  </div>
                 </div>
               </div>
           </div>
