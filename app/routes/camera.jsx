@@ -614,21 +614,6 @@ export default function FitAICameraTab() {
           // save metrics in state (so Export JSON button works)
           setLatestMetrics(metrics);
 
-          // automatic JSON download
-          try {
-            const blob = new Blob([JSON.stringify(metrics, null, 2)], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `fitai_metrics_${Date.now()}.json`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            URL.revokeObjectURL(url);
-          } catch (e) {
-            console.warn("Auto download failed", e);
-          }
-
           // post metrics and navigate
           postMetricsAndNavigate(metrics);
         }
@@ -665,27 +650,27 @@ export default function FitAICameraTab() {
     // Save locally too (redundant but safe)
     setLatestMetrics(metrics);
 
-    // Replace this URL with your ML endpoint that accepts the metrics JSON.
-    const endpoint = "/api/receiveMetrics"; // <-- change me
-    // Replace this with the route you want to navigate to after calibration.
-    const nextUrl = "/next"; // <-- change me
-
     try {
-      setPrompt("Sending metrics...");
-      const res = await fetch(endpoint, {
+      setPrompt("Saving camera results to your profile...");
+      
+      // Send camera results to update the most recent form data
+      const res = await fetch("/api/update-form-with-camera", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(metrics),
+        body: JSON.stringify({ cameraResults: metrics }),
       });
+      
       if (!res.ok) {
-        console.warn("Server rejected metrics", res.status);
-        setPrompt("Metrics sent (server returned error). Navigating anyway...");
+        console.warn("Failed to save camera results to profile", res.status);
+        setPrompt("Camera results saved locally. Navigating anyway...");
       } else {
-        setPrompt("Metrics sent. Redirecting...");
+        const result = await res.json();
+        console.log("Camera results saved to profile:", result);
+        setPrompt("Profile updated with camera analysis. Redirecting...");
       }
     } catch (e) {
-      console.warn("Failed to post metrics", e);
-      setPrompt("Failed to send metrics. Redirecting anyway...");
+      console.warn("Failed to save camera results to profile", e);
+      setPrompt("Camera results saved locally. Redirecting anyway...");
     }
 
     // navigate to the next page (will reload the app if needed)

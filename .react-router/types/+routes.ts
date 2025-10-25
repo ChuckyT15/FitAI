@@ -17,13 +17,19 @@ type Pages = {
   "/home": {
     params: {};
   };
-  "/form": {
-    params: {};
-  };
   "/camera": {
     params: {};
   };
   "/analytics": {
+    params: {};
+  };
+  "/api/save-form-data": {
+    params: {};
+  };
+  "/api/update-form-with-camera": {
+    params: {};
+  };
+  "/api/fitness-analysis": {
     params: {};
   };
 };
@@ -31,7 +37,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/home" | "/form" | "/camera" | "/analytics";
+    page: "/" | "/home" | "/camera" | "/analytics" | "/api/save-form-data" | "/api/update-form-with-camera" | "/api/fitness-analysis";
   };
   "routes/intro.tsx": {
     id: "routes/intro";
@@ -41,10 +47,6 @@ type RouteFiles = {
     id: "routes/home";
     page: "/home";
   };
-  "routes/form.tsx": {
-    id: "routes/form";
-    page: "/form";
-  };
   "routes/camera.jsx": {
     id: "routes/camera";
     page: "/camera";
@@ -53,13 +55,27 @@ type RouteFiles = {
     id: "routes/analytics";
     page: "/analytics";
   };
+  "routes/api.save-form-data.tsx": {
+    id: "routes/api.save-form-data";
+    page: "/api/save-form-data";
+  };
+  "routes/api.update-form-with-camera.tsx": {
+    id: "routes/api.update-form-with-camera";
+    page: "/api/update-form-with-camera";
+  };
+  "routes/api.fitness-analysis.tsx": {
+    id: "routes/api.fitness-analysis";
+    page: "/api/fitness-analysis";
+  };
 };
 
 type RouteModules = {
   "root": typeof import("./app/root.tsx");
   "routes/intro": typeof import("./app/routes/intro.tsx");
   "routes/home": typeof import("./app/routes/home.tsx");
-  "routes/form": typeof import("./app/routes/form.tsx");
   "routes/camera": typeof import("./app/routes/camera.jsx");
   "routes/analytics": typeof import("./app/routes/analytics.tsx");
+  "routes/api.save-form-data": typeof import("./app/routes/api.save-form-data.tsx");
+  "routes/api.update-form-with-camera": typeof import("./app/routes/api.update-form-with-camera.tsx");
+  "routes/api.fitness-analysis": typeof import("./app/routes/api.fitness-analysis.tsx");
 };

@@ -1,5 +1,5 @@
 import type { Route } from "./+types/intro";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useState } from "react";
 
 export function meta({}: Route.MetaArgs) {
@@ -28,6 +28,18 @@ export function links() {
 }
 
 export default function Intro() {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    heightFeet: '',
+    heightInches: '',
+    weight: '',
+    age: '',
+    gender: '',
+    fitnessLevel: '',
+    primaryGoal: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const scrollToForm = () => {
     const formElement = document.getElementById('form-section');
     if (formElement) {
@@ -35,6 +47,65 @@ export default function Intro() {
         behavior: 'smooth',
         block: 'start'
       });
+    }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Form submitted with data:', formData);
+    
+    // Check if all required fields are filled
+    const requiredFields = ['heightFeet', 'heightInches', 'weight', 'age', 'gender', 'fitnessLevel', 'primaryGoal'];
+    const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
+    
+    if (missingFields.length > 0) {
+      alert(`Please fill in all required fields: ${missingFields.join(', ')}`);
+      return;
+    }
+    
+    setIsSubmitting(true);
+
+    try {
+      // Convert height from feet/inches to cm and weight from lbs to kg
+      const heightInCm = (parseInt(formData.heightFeet) * 30.48) + (parseInt(formData.heightInches) * 2.54);
+      const weightInKg = parseFloat(formData.weight) * 0.453592;
+      
+      const dataToSend = {
+        ...formData,
+        height: heightInCm.toString(),
+        weight: weightInKg.toString()
+      };
+
+      const response = await fetch('/api/save-form-data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSend),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('Form data saved successfully:', result);
+        // Navigate to camera page after successful save
+        navigate('/camera');
+      } else {
+        console.error('Failed to save form data:', result.error);
+        alert('Failed to save form data. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error saving form data:', error);
+      alert('An error occurred while saving your data. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -226,28 +297,55 @@ export default function Intro() {
           </div>
 
           {/* Form */}
-          <div className="space-y-4">
+          <form onSubmit={handleFormSubmit} className="space-y-4">
             {/* Personal Information */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: '#000000' }}>
-                  Height (cm)
-                </label>
-                <input
-                  type="number"
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm"
-                  placeholder="170"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: '#000000' }}>
-                  Weight (kg)
-                </label>
-                <input
-                  type="number"
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm"
-                  placeholder="70"
-                />
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium mb-1" style={{ color: '#000000' }}>
+                    Height (ft)
+                  </label>
+                  <input
+                    type="number"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm"
+                    placeholder="6"
+                    min="3"
+                    max="8"
+                    value={formData.heightFeet}
+                    onChange={(e) => handleInputChange('heightFeet', e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1" style={{ color: '#000000' }}>
+                    Height (in)
+                  </label>
+                  <input
+                    type="number"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm"
+                    placeholder="0"
+                    min="0"
+                    max="11"
+                    value={formData.heightInches}
+                    onChange={(e) => handleInputChange('heightInches', e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1" style={{ color: '#000000' }}>
+                    Weight (lbs)
+                  </label>
+                  <input
+                    type="number"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm"
+                    placeholder="170"
+                    min="50"
+                    max="500"
+                    value={formData.weight}
+                    onChange={(e) => handleInputChange('weight', e.target.value)}
+                    required
+                  />
+                </div>
               </div>
             </div>
 
@@ -260,13 +358,21 @@ export default function Intro() {
                   type="number"
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm"
                   placeholder="25"
+                  value={formData.age}
+                  onChange={(e) => handleInputChange('age', e.target.value)}
+                  required
                 />
               </div>
               <div>
                 <label className="block text-xs font-medium mb-1" style={{ color: '#000000' }}>
                   Gender
                 </label>
-                <select className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm">
+                <select 
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm"
+                  value={formData.gender}
+                  onChange={(e) => handleInputChange('gender', e.target.value)}
+                  required
+                >
                   <option value="">Select</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
@@ -280,7 +386,12 @@ export default function Intro() {
               <label className="block text-xs font-medium mb-1" style={{ color: '#000000' }}>
                 Fitness Level
               </label>
-              <select className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm">
+              <select 
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm"
+                value={formData.fitnessLevel}
+                onChange={(e) => handleInputChange('fitnessLevel', e.target.value)}
+                required
+              >
                 <option value="">Select Level</option>
                 <option value="beginner">Beginner</option>
                 <option value="intermediate">Intermediate</option>
@@ -293,7 +404,12 @@ export default function Intro() {
               <label className="block text-xs font-medium mb-1" style={{ color: '#000000' }}>
                 Primary Goal
               </label>
-              <select className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm">
+              <select 
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm"
+                value={formData.primaryGoal}
+                onChange={(e) => handleInputChange('primaryGoal', e.target.value)}
+                required
+              >
                 <option value="">Select Goal</option>
                 <option value="weight-loss">Weight Loss</option>
                 <option value="muscle-gain">Muscle Gain</option>
@@ -313,15 +429,16 @@ export default function Intro() {
               >
                 Back to Top
               </button>
-              <Link
-                to="/camera"
-                className="flex-1 bg-gray-800 px-4 py-2 rounded-full font-medium text-sm hover:bg-gray-900 transition-all duration-300 text-center hover:scale-105"
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 bg-gray-800 px-4 py-2 rounded-full font-medium text-sm hover:bg-gray-900 transition-all duration-300 text-center hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 style={{ fontFamily: 'Playfair Display, serif', color: '#FFFFFF' }}
               >
-                Next Page
-              </Link>
+                {isSubmitting ? 'Saving...' : 'Next Page'}
+              </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
       </div>
