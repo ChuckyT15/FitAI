@@ -3,4 +3,4 @@
 /node_modules/
 
 # Chatbot configuration
-js/config.js
+public/js/config.js
