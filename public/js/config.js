@@ -42,8 +42,8 @@ const CONFIG = {
         enabled: true,
         autoStart: false,
         showFloatingButton: true,
-        welcomeMessage: 'Hello! I\'m your AI assistant. How can I help you today?',
-        placeholder: 'Ask me anything...',
+        welcomeMessage: '💪 Hello! I\'m FitAI, your specialized fitness and nutrition assistant. I can help you with exercises, nutrition, workout plans, and wellness questions. What fitness goal can I help you achieve today?',
+        placeholder: 'Ask about fitness, nutrition, or wellness...',
         maxMessages: 50, // Maximum messages to keep in chat history
         typing: {
             enabled: true,
@@ -55,13 +55,19 @@ const CONFIG = {
     api: {
         gemini: {
             // Add your Gemini API key here
-            // For team development: Copy this file to config.local.js and add your key there
-            apiKey: 'AIzaSyDadd8xT661kr2AN4G0pOX8luh2Kv57gZA',
+            // For team development: Each person should add their own key here
+            apiKey: 'AIzaSyAd1qmfSYm_kIEyjVupRFasNekcbVh9nT0', // Replace with your actual API key
             model: 'gemini-2.5-flash',
             baseUrl: 'https://generativelanguage.googleapis.com/v1beta/models/',
             temperature: 0.7,
-            maxTokens: 1000,
+            maxTokens: 2000,
             timeout: 30000 // 30 seconds
+        },
+        supabase: {
+            url: 'https://cqobrwvrysnjeewloxrw.supabase.co', // Replace with your Supabase project URL
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxb2Jyd3ZyeXNuamVld2xveHJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5ODU4NzksImV4cCI6MjA3NjU2MTg3OX0.Ywhb8gv0nH0bUFsRwtyZB0xrxUF5gSpLKAMKcagAKng', // Replace with your Supabase anon key
+            enabled: true,
+            timeout: 10000 // 10 seconds
         }
     },
 
@@ -95,7 +101,7 @@ const CONFIG = {
 
     // Debug Settings
     debug: {
-        enabled: false, // Set to true for development
+        enabled: true, // Set to true for development
         logLevel: 'info', // 'error', 'warn', 'info', 'debug'
         showPerformanceMetrics: false
     },
