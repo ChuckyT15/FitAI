@@ -24,7 +24,7 @@ class SupabaseDB {
             }
 
             // Initialize Supabase client
-            if (typeof window.supabase !== 'undefined') {
+            if (typeof window.supabase !== 'undefined') 
                 this.supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
                 this.isInitialized = true;
                 
