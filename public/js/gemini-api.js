@@ -14,11 +14,24 @@ class GeminiAPI {
     }
 
     async init() {
+        // Wait for CONFIG to be available
+        let retries = 0;
+        while (typeof CONFIG === 'undefined' && retries < 50) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            retries++;
+        }
+        
+        if (typeof CONFIG === 'undefined') {
+            console.error('CONFIG not available after waiting');
+            return;
+        }
+        
         // First priority: Check if API key is set in config
         const configApiKey = getConfig('api.gemini.apiKey');
         if (configApiKey && configApiKey !== 'YOUR_GEMINI_API_KEY_HERE') {
             this.apiKey = configApiKey;
             this.isInitialized = true;
+            console.log('✅ Gemini API initialized with config key');
         }
         // Second priority: Try to load API key from localStorage
         else {
@@ -27,6 +40,7 @@ class GeminiAPI {
                 this.promptForApiKey();
             } else {
                 this.isInitialized = true;
+                console.log('✅ Gemini API initialized with localStorage key');
             }
         }
 
