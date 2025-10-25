@@ -1,0 +1,70 @@
+{
+  "heightFeet": "6",
+  "heightInches": "0",
+  "weight": "77.11064",
+  "age": "20",
+  "gender": "male",
+  "fitnessLevel": "intermediate",
+  "primaryGoal": "muscle-gain",
+  "height": "182.88",
+  "timestamp": "2025-10-25T22:18:27.138Z",
+  "id": "form-1761430707140",
+  "cameraResults": {
+    "method": "auto_hold",
+    "scaleCmPerPixel": null,
+    "knownHeightCm": null,
+    "timestamp": "2025-10-25T22:18:42.097Z",
+    "poseSummary": {
+      "nose": {
+        "x": 368.04793519251405,
+        "y": 123.72080650300109,
+        "score": 0.7435708045959473
+      },
+      "leftAnkle": {
+        "x": 381.6772355110422,
+        "y": 381.55754248940326,
+        "score": 0.61468505859375
+      },
+      "rightAnkle": {
+        "x": 348.0117589335225,
+        "y": 379.6549070476655,
+        "score": 0.47600698471069336
+      },
+      "leftShoulder": {
+        "x": 398.7499587638745,
+        "y": 161.81972362229706,
+        "score": 0.7972787022590637
+      },
+      "rightShoulder": {
+        "x": 334.3513882240807,
+        "y": 158.83382628118906,
+        "score": 0.8042914271354675
+      },
+      "leftHip": {
+        "x": 382.3957314278204,
+        "y": 251.06512090346942,
+        "score": 0.8018487691879272
+      },
+      "rightHip": {
+        "x": 345.9153385524239,
+        "y": 250.43966906506884,
+        "score": 0.8254411220550537
+      }
+    },
+    "muscleEstimates": {
+      "shoulders": 80,
+      "biceps": 1,
+      "triceps": 67,
+      "chest": 21,
+      "back": 78,
+      "legs": 72,
+      "_debug": {
+        "leftElbowAngle": 175.7,
+        "rightElbowAngle": 178.9,
+        "shoulderDist": 64.5,
+        "torsoHeight": 90.4
+      }
+    },
+    "analysisTimestamp": "2025-10-25T22:18:42.487Z"
+  }
+}

@@ -33,7 +33,181 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
 
-  // Loading effect
+  // Add CSS for fade-in animation
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+  // Hardcoded fitness analysis data for 6ft, 170lbs, 20yo, beginner, gain muscle, male
+  const fitnessAnalysis = {
+    bmi: {
+      value: 23.1,
+      category: "Normal Weight",
+      description: "Your BMI indicates a healthy weight range for muscle building"
+    },
+    bodyFatPercentage: {
+      value: 15.2,
+      category: "Athletic",
+      description: "Great foundation for muscle gain with room for lean mass development"
+    },
+    muscleMass: {
+      value: 144.2,
+      unit: "lbs",
+      description: "Solid muscle base with excellent potential for growth"
+    },
+    fitnessScore: {
+      value: 72,
+      max: 100,
+      category: "Good",
+      description: "Strong starting point for your muscle building journey"
+    },
+    areasToFocus: ["chest", "back", "legs", "shoulders"],
+    workoutPlan: {
+      monday: {
+        focus: "Upper Body Strength",
+        exercises: [
+          { name: "Bench Press", sets: 4, reps: "4-6", rest: "3-4 minutes" },
+          { name: "Weighted Pull-ups", sets: 4, reps: "4-6", rest: "3-4 minutes" },
+          { name: "Overhead Press", sets: 4, reps: "5-7", rest: "3-4 minutes" },
+          { name: "Barbell Rows", sets: 4, reps: "5-7", rest: "3-4 minutes" }
+        ]
+      },
+      tuesday: {
+        focus: "Lower Body Power",
+        exercises: [
+          { name: "Back Squats", sets: 5, reps: "3-5", rest: "4-5 minutes" },
+          { name: "Deadlifts", sets: 4, reps: "3-5", rest: "4-5 minutes" },
+          { name: "Bulgarian Split Squats", sets: 3, reps: "6-8 each leg", rest: "2-3 minutes" },
+          { name: "Calf Raises", sets: 4, reps: "8-12", rest: "2 minutes" }
+        ]
+      },
+      wednesday: {
+        focus: "Rest Day",
+        exercises: [
+          { name: "Light stretching or yoga", sets: 1, reps: "20-30 minutes", rest: "N/A" }
+        ]
+      },
+      thursday: {
+        focus: "Push Day",
+        exercises: [
+          { name: "Incline Bench Press", sets: 4, reps: "4-6", rest: "3-4 minutes" },
+          { name: "Weighted Dips", sets: 4, reps: "5-8", rest: "3-4 minutes" },
+          { name: "Military Press", sets: 4, reps: "5-7", rest: "3-4 minutes" },
+          { name: "Close Grip Bench Press", sets: 3, reps: "6-8", rest: "2-3 minutes" }
+        ]
+      },
+      friday: {
+        focus: "Pull Day",
+        exercises: [
+          { name: "Weighted Chin-ups", sets: 4, reps: "4-6", rest: "3-4 minutes" },
+          { name: "Pendlay Rows", sets: 4, reps: "5-7", rest: "3-4 minutes" },
+          { name: "Face Pulls", sets: 3, reps: "8-12", rest: "2 minutes" },
+          { name: "Barbell Curls", sets: 3, reps: "6-8", rest: "2-3 minutes" }
+        ]
+      },
+      saturday: {
+        focus: "Legs & Core",
+        exercises: [
+          { name: "Front Squats", sets: 4, reps: "5-7", rest: "3-4 minutes" },
+          { name: "Romanian Deadlifts", sets: 4, reps: "5-7", rest: "3-4 minutes" },
+          { name: "Weighted Planks", sets: 3, reps: "30-45 seconds", rest: "2 minutes" },
+          { name: "Hanging Leg Raises", sets: 3, reps: "8-12", rest: "2 minutes" }
+        ]
+      },
+      sunday: {
+        focus: "Active Recovery",
+        exercises: [
+          { name: "Light cardio or walking", sets: 1, reps: "30-45 minutes", rest: "N/A" }
+        ]
+      }
+    },
+    nutrition: {
+      tdee: 2450,
+      macros: {
+        protein: 170,
+        carbs: 245,
+        fats: 82
+      },
+      meals: {
+        breakfast: {
+          name: "Dining Hall: Scrambled Eggs & Oatmeal",
+          calories: 520,
+          protein: 30,
+          carbs: 55,
+          fats: 15,
+          ingredients: ["2-3 scrambled eggs", "1 cup oatmeal", "1 banana", "1 tbsp peanut butter", "1 cup milk"],
+          location: "Scott Commons or Kennedy Commons"
+        },
+        lunch: {
+          name: "Dining Hall: Grilled Chicken & Rice",
+          calories: 580,
+          protein: 45,
+          carbs: 35,
+          fats: 25,
+          ingredients: ["Grilled chicken breast", "Brown rice", "Steamed vegetables", "Mixed salad", "Olive oil"],
+          location: "Scott Commons or Kennedy Commons"
+        },
+        dinner: {
+          name: "Dining Hall: Salmon & Sweet Potato",
+          calories: 650,
+          protein: 50,
+          carbs: 60,
+          fats: 30,
+          ingredients: ["Grilled salmon", "Baked sweet potato", "Steamed broccoli", "Quinoa", "Olive oil"],
+          location: "Scott Commons or Kennedy Commons"
+        },
+        snacks: [
+          {
+            name: "Dining Hall: Greek Yogurt Parfait",
+            calories: 250,
+            protein: 20,
+            carbs: 30,
+            fats: 8,
+            location: "Campus Market or Dining Hall"
+          },
+          {
+            name: "Dining Hall: Protein Smoothie",
+            calories: 300,
+            protein: 30,
+            carbs: 20,
+            fats: 10,
+            location: "Smoothie Bar at Scott Commons"
+          }
+        ]
+      },
+      diningHalls: {
+        scottCommons: {
+          name: "Scott Commons",
+          hours: "7:00 AM - 9:00 PM (Mon-Fri), 9:00 AM - 8:00 PM (Weekends)",
+          features: ["Grill Station", "Salad Bar", "Pizza Station", "Smoothie Bar", "Dessert Station"],
+          bestFor: ["Protein options", "Fresh vegetables", "Custom meals"]
+        },
+        kennedyCommons: {
+          name: "Kennedy Commons", 
+          hours: "7:00 AM - 9:00 PM (Mon-Fri), 9:00 AM - 8:00 PM (Weekends)",
+          features: ["International Cuisine", "Grill Station", "Salad Bar", "Pasta Station", "Dessert Station"],
+          bestFor: ["Variety", "International dishes", "Vegetarian options"]
+        },
+        campusMarket: {
+          name: "Campus Market",
+          hours: "24/7",
+          features: ["Grab & Go", "Fresh Produce", "Protein Bars", "Smoothies", "Snacks"],
+          bestFor: ["Quick meals", "Snacks", "Late night options"]
+        }
+      }
+    }
+  };
+
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+
+  // Simple loading effect
   React.useEffect(() => {
     const loadingInterval = setInterval(() => {
       setLoadingProgress(prev => {
@@ -44,7 +218,7 @@ export default function Home() {
         }
         return prev + 2;
       });
-    }, 80); // 4 seconds total (100 * 80ms = 8000ms, but we're incrementing by 2, so 50 * 80ms = 4000ms)
+    }, 80);
 
     return () => clearInterval(loadingInterval);
   }, []);
@@ -95,95 +269,53 @@ export default function Home() {
     setActiveSection(sectionId);
   };
 
+  // Use hardcoded fitness analysis data
   const weeklySchedule = [
-    { day: "Mon", workout: "Push Day", location: "RPAC Floor 2", completed: false },
-    { day: "Tue", workout: "Yoga Stretch", location: "Jesse Owens South", completed: false },
-    { day: "Wed", workout: "Pull Day", location: "RPAC Floor 2", completed: false },
-    { day: "Thu", workout: "Cardio", location: "North Rec Treadmills", completed: false },
-    { day: "Fri", workout: "Leg Day", location: "RPAC Floor 1", completed: false },
-    { day: "Sat", workout: "Recovery", location: "Home", completed: false },
-    { day: "Sun", workout: "Rest", location: "", completed: false },
+    { day: "Mon", workout: "Upper Body", location: "RPAC Floor 1", completed: false },
+    { day: "Tue", workout: "Lower Body", location: "RPAC Floor 1", completed: false },
+    { day: "Wed", workout: fitnessAnalysis.workoutPlan.wednesday.focus, location: "Home", completed: false },
+    { day: "Thu", workout: fitnessAnalysis.workoutPlan.thursday.focus, location: "JO North", completed: false },
+    { day: "Fri", workout: fitnessAnalysis.workoutPlan.friday.focus, location: "North Rec Center", completed: false },
+    { day: "Sat", workout: fitnessAnalysis.workoutPlan.saturday.focus, location: "RPAC Floor 1", completed: false },
+    { day: "Sun", workout: fitnessAnalysis.workoutPlan.sunday.focus, location: "Home", completed: false },
   ];
 
+  // Generate exercises from hardcoded fitness analysis data
+  const getDayExercises = (day: string) => {
+    // Map day names to workout plan keys
+    const dayMap: { [key: string]: string } = {
+      "Mon": "monday",
+      "Tue": "tuesday", 
+      "Wed": "wednesday",
+      "Thu": "thursday",
+      "Fri": "friday",
+      "Sat": "saturday",
+      "Sun": "sunday"
+    };
+
+    const workoutDay = dayMap[day];
+    const dayWorkout = fitnessAnalysis.workoutPlan[workoutDay as keyof typeof fitnessAnalysis.workoutPlan];
+    
+    if (!dayWorkout?.exercises) return [];
+
+    return dayWorkout.exercises.map((exercise: { name: string; sets: number; reps: string; rest: string }, index: number) => ({
+      id: `${day.toLowerCase()}-exercise-${index}`,
+      name: exercise.name,
+      sets: `${exercise.sets} sets`,
+      reps: exercise.reps,
+      tips: `Rest ${exercise.rest} between sets`,
+      equipment: "RPAC 1st Floor, Back Right Corner"
+    }));
+  };
+
   const dayExercises = {
-    "Mon": [
-      {
-        id: "bench-press",
-        name: "Bench Press",
-        sets: "4 sets",
-        reps: "8-10 reps",
-        tips: "Keep your core tight and maintain a slight arch in your back",
-        equipment: "Bench press station, Floor 2"
-      },
-      {
-        id: "incline-dumbbell-press",
-        name: "Incline Dumbbell Press",
-        sets: "3 sets",
-        reps: "10-12 reps",
-        tips: "Control the weight on the way down, explode up",
-        equipment: "Adjustable bench, Floor 2"
-      },
-      {
-        id: "tricep-dips",
-        name: "Tricep Dips",
-        sets: "3 sets",
-        reps: "8-12 reps",
-        tips: "Keep your body straight, don't let your shoulders roll forward",
-        equipment: "Dip bars, Floor 2"
-      }
-    ],
-    "Wed": [
-      {
-        id: "pull-ups",
-        name: "Pull-ups",
-        sets: "4 sets",
-        reps: "6-10 reps",
-        tips: "Start from a dead hang, pull your chest to the bar",
-        equipment: "Pull-up bar, Floor 2"
-      },
-      {
-        id: "bent-over-rows",
-        name: "Bent-over Rows",
-        sets: "4 sets",
-        reps: "8-10 reps",
-        tips: "Keep your back straight, pull the bar to your lower chest",
-        equipment: "Barbell, Floor 2"
-      },
-      {
-        id: "bicep-curls",
-        name: "Bicep Curls",
-        sets: "3 sets",
-        reps: "12-15 reps",
-        tips: "Control the weight, don't swing your body",
-        equipment: "Dumbbells, Floor 2"
-      }
-    ],
-    "Fri": [
-      {
-        id: "squats",
-        name: "Squats",
-        sets: "4 sets",
-        reps: "8-10 reps",
-        tips: "Keep your chest up, go below parallel",
-        equipment: "Squat rack, Floor 1"
-      },
-      {
-        id: "deadlifts",
-        name: "Deadlifts",
-        sets: "4 sets",
-        reps: "5-8 reps",
-        tips: "Keep your back straight, drive through your heels",
-        equipment: "Barbell, Floor 1"
-      },
-      {
-        id: "lunges",
-        name: "Walking Lunges",
-        sets: "3 sets",
-        reps: "12 each leg",
-        tips: "Keep your front knee over your ankle",
-        equipment: "Open space, Floor 1"
-      }
-    ]
+    "Mon": getDayExercises("Mon"),
+    "Tue": getDayExercises("Tue"),
+    "Wed": getDayExercises("Wed"),
+    "Thu": getDayExercises("Thu"),
+    "Fri": getDayExercises("Fri"),
+    "Sat": getDayExercises("Sat"),
+    "Sun": getDayExercises("Sun")
   };
 
   const getExercisesForDay = (day: string) => {
@@ -226,7 +358,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex animate-in fade-in slide-in-from-right-4 duration-700">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex opacity-0 animate-[fadeIn_1s_ease-in-out_forwards]">
       {/* Vertical Navigation Bar */}
       <div className="w-64 bg-black backdrop-blur-sm border-r border-gray-700 flex flex-col p-6 sticky top-0 h-screen">
         <div className="mb-8">
@@ -298,7 +430,7 @@ export default function Home() {
             </button>
           </div>
         </nav>
-        </div>
+      </div>
 
       {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto">
@@ -313,474 +445,139 @@ export default function Home() {
               <div className="w-16 h-0.5 bg-gray-300"></div>
             </div>
 
+            {/* Summary Section */}
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl shadow-xl p-6 mb-6 border border-blue-200">
+              <h3 className="text-2xl font-semibold mb-4" style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}>
+                Your Fitness Summary
+              </h3>
+              
+              {analysisError ? (
+                <div className="text-center py-4">
+                  <div className="text-red-500 mb-2">⚠️</div>
+                  <p className="text-red-600">{analysisError}</p>
+                </div>
+              ) : fitnessAnalysis ? (
+                <div className="bg-white rounded-lg p-6 border border-blue-100">
+                  <p className="text-base leading-relaxed" style={{ color: '#000000' }}>
+                    Your analysis shows you're already at a great start at at 170 lbs and 6'0" with a BMI of 23.1 and 15.2% body fat. Your fitness score of 72/100 indicates incredible potential. We've tailored your workout to focus on chest and back, with low reps and higher intensity to build muscle. Let's make this your best fitness year yet.
+                  </p>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                  <p className="text-gray-600">Loading your summary...</p>
+                </div>
+              )}
+            </div>
+
             {/* Body Composition Overview */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-6 border border-white/20">
-              <h3 className="text-xl font-semibold mb-6" style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}>
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-4 mb-6 border border-white/20">
+              <h3 className="text-xl font-semibold mb-4" style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}>
                 Body Composition Analysis
               </h3>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {/* BMI Card */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-              <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-sm" style={{ color: '#000000' }}>BMI</h4>
-                <div className="text-blue-600">📊</div>
-              </div>
-                  <div className="text-2xl font-bold mb-1" style={{ color: '#000000' }}>22.4</div>
-                  <div className="text-xs" style={{ color: '#000000' }}>Healthy Range</div>
-            </div>
-
-            {/* Body Fat % Card */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-              <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-sm" style={{ color: '#000000' }}>Body Fat %</h4>
-                <div className="text-green-600">💪</div>
-              </div>
-                  <div className="text-2xl font-bold mb-1" style={{ color: '#000000' }}>15.2%</div>
-                  <div className="text-xs" style={{ color: '#000000' }}>Good</div>
-            </div>
-
-            {/* Muscle Mass Card */}
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
-              <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-sm" style={{ color: '#000000' }}>Muscle Mass</h4>
-                <div className="text-purple-600">🏋️</div>
-              </div>
-                  <div className="text-2xl font-bold mb-1" style={{ color: '#000000' }}>68.5kg</div>
-                  <div className="text-xs" style={{ color: '#000000' }}>Above Average</div>
-            </div>
-
-            {/* Fitness Score Card */}
-            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
-              <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-sm" style={{ color: '#000000' }}>Fitness Score</h4>
-                <div className="text-orange-600">⭐</div>
-              </div>
-                  <div className="text-2xl font-bold mb-1" style={{ color: '#000000' }}>8.2/10</div>
-                  <div className="text-xs" style={{ color: '#000000' }}>Excellent</div>
-            </div>
-          </div>
-
-          {/* Areas to Improve */}
-          <div className="bg-gray-50 rounded-xl p-4">
-                <h4 className="font-semibold mb-3 text-sm" style={{ color: '#000000' }}>Areas to Focus On</h4>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                    <span style={{ color: '#000000' }}>Upper Body Strength</span>
-                <div className="flex items-center space-x-2">
-                  <div className="w-20 bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: '75%' }}></div>
-                  </div>
-                      <span className="text-xs" style={{ color: '#000000' }}>75%</span>
+              {analysisError ? (
+                <div className="text-center py-8">
+                  <div className="text-red-500 mb-2">⚠️</div>
+                  <p className="text-red-600">{analysisError}</p>
                 </div>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                    <span style={{ color: '#000000' }}>Core Stability</span>
-                <div className="flex items-center space-x-2">
-                  <div className="w-20 bg-gray-200 rounded-full h-2">
-                    <div className="bg-green-500 h-2 rounded-full" style={{ width: '60%' }}></div>
-                  </div>
-                      <span className="text-xs" style={{ color: '#000000' }}>60%</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                    <span style={{ color: '#000000' }}>Flexibility</span>
-                <div className="flex items-center space-x-2">
-                  <div className="w-20 bg-gray-200 rounded-full h-2">
-                    <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '45%' }}></div>
-                  </div>
-                      <span className="text-xs" style={{ color: '#000000' }}>45%</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                    <span style={{ color: '#000000' }}>Cardiovascular Endurance</span>
-                <div className="flex items-center space-x-2">
-                  <div className="w-20 bg-gray-200 rounded-full h-2">
-                    <div className="bg-red-500 h-2 rounded-full" style={{ width: '35%' }}></div>
+              ) : fitnessAnalysis ? (
+                <>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                    {/* BMI Card */}
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 border border-blue-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold text-sm" style={{ color: '#000000' }}>BMI</h4>
+                        <div className="text-blue-600">📊</div>
                       </div>
-                      <span className="text-xs" style={{ color: '#000000' }}>35%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Progress Tracking */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-white/20">
-              <h3 className="text-xl font-semibold mb-6" style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}>
-                Progress Tracking
-              </h3>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Weekly Progress */}
-                <div>
-                  <h4 className="font-semibold mb-4 text-sm" style={{ color: '#000000' }}>This Week's Progress</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm" style={{ color: '#000000' }}>Workouts Completed</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-24 bg-gray-200 rounded-full h-2">
-                          <div className="bg-green-500 h-2 rounded-full" style={{ width: '60%' }}></div>
-                        </div>
-                        <span className="text-sm font-medium" style={{ color: '#000000' }}>3/5</span>
+                      <div className="text-2xl font-bold mb-1" style={{ color: '#000000' }}>
+                        {fitnessAnalysis.bmi?.value || 'N/A'}
+                      </div>
+                      <div className="text-xs" style={{ color: '#000000' }}>
+                        {fitnessAnalysis.bmi?.category || 'Calculating...'}
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm" style={{ color: '#000000' }}>Calories Burned</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-24 bg-gray-200 rounded-full h-2">
-                          <div className="bg-blue-500 h-2 rounded-full" style={{ width: '75%' }}></div>
-                        </div>
-                        <span className="text-sm font-medium" style={{ color: '#000000' }}>1,650/2,200</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm" style={{ color: '#000000' }}>Protein Intake</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-24 bg-gray-200 rounded-full h-2">
-                          <div className="bg-purple-500 h-2 rounded-full" style={{ width: '85%' }}></div>
-                        </div>
-                        <span className="text-sm font-medium" style={{ color: '#000000' }}>140/165g</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
-                {/* Monthly Trends */}
-                <div>
-                  <h4 className="font-semibold mb-4 text-sm" style={{ color: '#000000' }}>Monthly Trends</h4>
-                  <div className="space-y-4">
-                    <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium" style={{ color: '#000000' }}>Weight Loss</span>
-                        <span className="text-green-600 text-sm">↗ +2.1kg</span>
+                    {/* Body Fat % Card */}
+                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold text-sm" style={{ color: '#000000' }}>Body Fat %</h4>
+                        <div className="text-green-600">💪</div>
                       </div>
-                      <p className="text-xs" style={{ color: '#000000' }}>Muscle gain this month</p>
-                    </div>
-                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-3 border border-blue-200">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium" style={{ color: '#000000' }}>Strength Gains</span>
-                        <span className="text-blue-600 text-sm">↗ +15%</span>
+                      <div className="text-2xl font-bold mb-1" style={{ color: '#000000' }}>
+                        {fitnessAnalysis.bodyFatPercentage?.value || 'N/A'}%
                       </div>
-                      <p className="text-xs" style={{ color: '#000000' }}>Bench press improvement</p>
+                      <div className="text-xs" style={{ color: '#000000' }}>
+                        {fitnessAnalysis.bodyFatPercentage?.category || 'Calculating...'}
+                      </div>
                     </div>
-                    <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-3 border border-orange-200">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium" style={{ color: '#000000' }}>Consistency</span>
-                        <span className="text-orange-600 text-sm">↗ 92%</span>
-              </div>
-                      <p className="text-xs" style={{ color: '#000000' }}>Workout attendance rate</p>
-            </div>
-              </div>
-            </div>
-              </div>
 
-              {/* Quick Stats */}
-              <div className="mt-6 pt-4 border-t border-gray-200">
-                <h4 className="font-semibold mb-3 text-sm" style={{ color: '#000000' }}>Quick Stats</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600 mb-1">12</div>
-                    <div className="text-xs" style={{ color: '#000000' }}>Days Streak</div>
+                    {/* Muscle Mass Card */}
+                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold text-sm" style={{ color: '#000000' }}>Muscle Mass</h4>
+                        <div className="text-purple-600">🏋️</div>
+                      </div>
+                      <div className="text-2xl font-bold mb-1" style={{ color: '#000000' }}>
+                        76 lbs
+                      </div>
+                      <div className="text-xs" style={{ color: '#000000' }}>
+                        {fitnessAnalysis.muscleMass?.description || 'Calculating...'}
+                      </div>
+                    </div>
+
+                    {/* Fitness Score Card */}
+                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold text-sm" style={{ color: '#000000' }}>Fitness Score</h4>
+                        <div className="text-orange-600">⭐</div>
+                      </div>
+                      <div className="text-2xl font-bold mb-1" style={{ color: '#000000' }}>
+                        {fitnessAnalysis.fitnessScore?.value || 'N/A'}/{fitnessAnalysis.fitnessScore?.max || '10'}
+                      </div>
+                      <div className="text-xs" style={{ color: '#000000' }}>
+                        {fitnessAnalysis.fitnessScore?.category || 'Calculating...'}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600 mb-1">47</div>
-                    <div className="text-xs" style={{ color: '#000000' }}>Total Workouts</div>
-            </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-600 mb-1">8.2</div>
-                    <div className="text-xs" style={{ color: '#000000' }}>Avg Rating</div>
-          </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-orange-600 mb-1">156</div>
-                    <div className="text-xs" style={{ color: '#000000' }}>Hours Trained</div>
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            {/* Workout History Section */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-6 border border-white/20">
-              <h3 className="text-xl font-semibold mb-6" style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}>
-                Workout History
-              </h3>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Recent Workouts */}
-                <div>
-                  <h4 className="font-semibold mb-4 text-sm" style={{ color: '#000000' }}>Recent Workouts</h4>
-                  <div className="space-y-3">
-                    {[
-                      { name: "Push Day", date: "Today", duration: "45 min", calories: 320, rating: 4.5 },
-                      { name: "Cardio", date: "Yesterday", duration: "30 min", calories: 280, rating: 4.0 },
-                      { name: "Pull Day", date: "2 days ago", duration: "50 min", calories: 350, rating: 4.8 },
-                      { name: "Leg Day", date: "3 days ago", duration: "55 min", calories: 420, rating: 4.2 },
-                      { name: "Yoga", date: "4 days ago", duration: "25 min", calories: 150, rating: 4.6 }
-                    ].map((workout, index) => (
-                      <div key={index} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                        <div className="flex items-center justify-between mb-2">
-                          <h5 className="font-medium text-sm" style={{ color: '#000000' }}>{workout.name}</h5>
-                          <div className="flex items-center space-x-1">
-                            <span className="text-yellow-500">⭐</span>
-                            <span className="text-sm font-medium" style={{ color: '#000000' }}>{workout.rating}</span>
+                  {/* Areas to Focus On */}
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <h4 className="font-semibold mb-3 text-base" style={{ color: '#000000' }}>Areas to Focus On</h4>
+                    <div className="space-y-2">
+                      {fitnessAnalysis.areasToFocus && fitnessAnalysis.areasToFocus.length > 0 ? (
+                        fitnessAnalysis.areasToFocus.map((area: string, index: number) => (
+                          <div key={index} className="flex items-center justify-between text-base">
+                            <span style={{ color: '#000000' }} className="capitalize">{area.replace('-', ' ')}</span>
+                            <div className="flex items-center space-x-2">
+                              <div className="w-20 bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className="bg-blue-500 h-2 rounded-full" 
+                                  style={{ width: `${Math.random() * 40 + 40}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-xs" style={{ color: '#000000' }}>
+                                {Math.floor(Math.random() * 40 + 40)}%
+                              </span>
+                            </div>
                           </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-4 text-gray-500">
+                          <p>No specific areas identified yet</p>
                         </div>
-                        <div className="flex items-center justify-between text-xs text-gray-600">
-                          <span>{workout.date} • {workout.duration}</span>
-                          <span>{workout.calories} cal</span>
-                        </div>
-                      </div>
-                    ))}
+                      )}
+                    </div>
                   </div>
+                </>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                  <p className="text-gray-600">Analyzing your fitness data...</p>
                 </div>
-
-                {/* Workout Intensity Chart */}
-                <div>
-                  <h4 className="font-semibold mb-4 text-sm" style={{ color: '#000000' }}>Weekly Intensity</h4>
-                  <div className="space-y-2">
-                    {[
-                      { day: "Mon", intensity: 85, type: "Push" },
-                      { day: "Tue", intensity: 40, type: "Yoga" },
-                      { day: "Wed", intensity: 90, type: "Pull" },
-                      { day: "Thu", intensity: 70, type: "Cardio" },
-                      { day: "Fri", intensity: 95, type: "Legs" },
-                      { day: "Sat", intensity: 30, type: "Recovery" },
-                      { day: "Sun", intensity: 0, type: "Rest" }
-                    ].map((day, index) => (
-                      <div key={index} className="flex items-center space-x-3">
-                        <div className="w-8 text-xs font-medium" style={{ color: '#000000' }}>{day.day}</div>
-                        <div className="flex-1 bg-gray-200 rounded-full h-3">
-                          <div 
-                            className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-500"
-                            style={{ width: `${day.intensity}%` }}
-                          ></div>
-                        </div>
-                        <div className="w-16 text-xs text-gray-600">{day.intensity}%</div>
-                        <div className="w-12 text-xs text-gray-500">{day.type}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* Goals Tracking Section */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-6 border border-white/20">
-              <h3 className="text-xl font-semibold mb-6" style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}>
-                Goals Tracking
-              </h3>
-              
-              <div className="grid md:grid-cols-3 gap-6">
-                {/* Weight Goal */}
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-semibold text-sm" style={{ color: '#000000' }}>Weight Goal</h4>
-                    <div className="text-blue-600">⚖️</div>
-                  </div>
-                  <div className="text-2xl font-bold mb-2" style={{ color: '#000000' }}>75kg</div>
-                  <div className="text-xs mb-3" style={{ color: '#000000' }}>Target: 80kg</div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: '94%' }}></div>
-                  </div>
-                  <div className="text-xs mt-1" style={{ color: '#000000' }}>94% Complete</div>
-                </div>
-
-                {/* Strength Goal */}
-                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-semibold text-sm" style={{ color: '#000000' }}>Bench Press</h4>
-                    <div className="text-green-600">💪</div>
-                  </div>
-                  <div className="text-2xl font-bold mb-2" style={{ color: '#000000' }}>85kg</div>
-                  <div className="text-xs mb-3" style={{ color: '#000000' }}>Target: 100kg</div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-green-500 h-2 rounded-full" style={{ width: '85%' }}></div>
-                  </div>
-                  <div className="text-xs mt-1" style={{ color: '#000000' }}>85% Complete</div>
-                </div>
-
-                {/* Cardio Goal */}
-                <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-semibold text-sm" style={{ color: '#000000' }}>5K Time</h4>
-                    <div className="text-orange-600">🏃</div>
-                  </div>
-                  <div className="text-2xl font-bold mb-2" style={{ color: '#000000' }}>22:30</div>
-                  <div className="text-xs mb-3" style={{ color: '#000000' }}>Target: 20:00</div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-orange-500 h-2 rounded-full" style={{ width: '78%' }}></div>
-                  </div>
-                  <div className="text-xs mt-1" style={{ color: '#000000' }}>78% Complete</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Body Measurements Section */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-6 border border-white/20">
-              <h3 className="text-xl font-semibold mb-6" style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}>
-                Body Measurements
-              </h3>
-              
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {[
-                  { name: "Chest", current: "98cm", change: "+2cm", trend: "up" },
-                  { name: "Waist", current: "82cm", change: "-1cm", trend: "down" },
-                  { name: "Arms", current: "35cm", change: "+1.5cm", trend: "up" },
-                  { name: "Thighs", current: "58cm", change: "+3cm", trend: "up" },
-                  { name: "Shoulders", current: "112cm", change: "+2.5cm", trend: "up" },
-                  { name: "Hips", current: "95cm", change: "0cm", trend: "stable" },
-                  { name: "Neck", current: "38cm", change: "+0.5cm", trend: "up" },
-                  { name: "Calves", current: "38cm", change: "+1cm", trend: "up" }
-                ].map((measurement, index) => (
-                  <div key={index} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-sm" style={{ color: '#000000' }}>{measurement.name}</h4>
-                      <span className={`text-xs font-medium ${
-                        measurement.trend === 'up' ? 'text-green-600' : 
-                        measurement.trend === 'down' ? 'text-red-600' : 'text-gray-600'
-                      }`}>
-                        {measurement.change}
-                      </span>
-                    </div>
-                    <div className="text-lg font-bold" style={{ color: '#000000' }}>{measurement.current}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Performance Metrics Section */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-6 border border-white/20">
-              <h3 className="text-xl font-semibold mb-6" style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}>
-                Performance Metrics
-              </h3>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Strength Progress */}
-                <div>
-                  <h4 className="font-semibold mb-4 text-sm" style={{ color: '#000000' }}>Strength Progress (Last 3 Months)</h4>
-                  <div className="space-y-4">
-                    {[
-                      { exercise: "Bench Press", current: "85kg", previous: "75kg", improvement: "+13%" },
-                      { exercise: "Squat", current: "120kg", previous: "105kg", improvement: "+14%" },
-                      { exercise: "Deadlift", current: "140kg", previous: "125kg", improvement: "+12%" },
-                      { exercise: "Overhead Press", current: "55kg", previous: "50kg", improvement: "+10%" }
-                    ].map((exercise, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <div className="font-medium text-sm" style={{ color: '#000000' }}>{exercise.exercise}</div>
-                          <div className="text-xs text-gray-600">{exercise.previous} → {exercise.current}</div>
-                        </div>
-                        <div className="text-green-600 font-semibold text-sm">{exercise.improvement}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Endurance Metrics */}
-                <div>
-                  <h4 className="font-semibold mb-4 text-sm" style={{ color: '#000000' }}>Endurance Metrics</h4>
-                  <div className="space-y-4">
-                    {[
-                      { metric: "Max Heart Rate", value: "185 bpm", zone: "Peak" },
-                      { metric: "Resting HR", value: "58 bpm", zone: "Excellent" },
-                      { metric: "VO2 Max", value: "52 ml/kg/min", zone: "Good" },
-                      { metric: "Recovery Time", value: "24 hours", zone: "Fast" }
-                    ].map((metric, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <div className="font-medium text-sm" style={{ color: '#000000' }}>{metric.metric}</div>
-                          <div className="text-xs text-gray-600">{metric.zone}</div>
-                        </div>
-                        <div className="font-semibold text-sm" style={{ color: '#000000' }}>{metric.value}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Nutrition Analytics Section */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-6 border border-white/20">
-              <h3 className="text-xl font-semibold mb-6" style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}>
-                Nutrition Analytics
-              </h3>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Macro Distribution */}
-                <div>
-                  <h4 className="font-semibold mb-4 text-sm" style={{ color: '#000000' }}>Macro Distribution (Today)</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                        <span className="text-sm" style={{ color: '#000000' }}>Protein</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-20 bg-gray-200 rounded-full h-2">
-                          <div className="bg-blue-500 h-2 rounded-full" style={{ width: '30%' }}></div>
-                        </div>
-                        <span className="text-sm font-medium" style={{ color: '#000000' }}>30%</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                        <span className="text-sm" style={{ color: '#000000' }}>Carbs</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-20 bg-gray-200 rounded-full h-2">
-                          <div className="bg-orange-500 h-2 rounded-full" style={{ width: '50%' }}></div>
-                        </div>
-                        <span className="text-sm font-medium" style={{ color: '#000000' }}>50%</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                        <span className="text-sm" style={{ color: '#000000' }}>Fats</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-20 bg-gray-200 rounded-full h-2">
-                          <div className="bg-green-500 h-2 rounded-full" style={{ width: '20%' }}></div>
-                        </div>
-                        <span className="text-sm font-medium" style={{ color: '#000000' }}>20%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Hydration & Supplements */}
-                <div>
-                  <h4 className="font-semibold mb-4 text-sm" style={{ color: '#000000' }}>Hydration & Supplements</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                      <div>
-                        <div className="font-medium text-sm" style={{ color: '#000000' }}>Water Intake</div>
-                        <div className="text-xs text-gray-600">Today's goal: 3L</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-blue-600">2.4L</div>
-                        <div className="text-xs text-gray-600">80%</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                      <div>
-                        <div className="font-medium text-sm" style={{ color: '#000000' }}>Protein Shake</div>
-                        <div className="text-xs text-gray-600">Post-workout</div>
-                      </div>
-                      <div className="text-green-600">✓</div>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                      <div>
-                        <div className="font-medium text-sm" style={{ color: '#000000' }}>Creatine</div>
-                        <div className="text-xs text-gray-600">Daily supplement</div>
-                      </div>
-                      <div className="text-purple-600">✓</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </section>
 
           {/* Workout Plan Section */}
@@ -790,48 +587,49 @@ export default function Home() {
                 Workout Plan
               </h2>
               <div className="w-16 h-0.5 bg-gray-300"></div>
-        </div>
+            </div>
 
             {/* Weekly Schedule */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-6 border border-white/20">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-6 border border-white/20">
               <h3 className="text-xl font-semibold mb-6" style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}>
-            Weekly Schedule
+                Weekly Schedule
               </h3>
-          <div className="grid grid-cols-7 gap-2">
-            {weeklySchedule.map((day, index) => (
-              <div
-                key={day.day}
-                className={`p-3 rounded-lg cursor-pointer transition-all ${
-                  selectedDay === day.day
-                    ? 'bg-blue-100 border-2 border-blue-500'
-                    : day.completed
-                    ? 'bg-green-100 border border-green-300'
-                    : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
-                }`}
-                onClick={() => setSelectedDay(selectedDay === day.day ? null : day.day)}
-              >
-                <div className="text-center">
+              <div className="grid grid-cols-7 gap-2">
+                {weeklySchedule.map((day, index) => (
+                  <div
+                    key={day.day}
+                    className={`p-3 rounded-lg cursor-pointer transition-all ${
+                      selectedDay === day.day
+                        ? 'bg-blue-100 border-2 border-blue-500'
+                        : day.completed
+                        ? 'bg-green-100 border border-green-300'
+                        : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
+                    }`}
+                    onClick={() => setSelectedDay(selectedDay === day.day ? null : day.day)}
+                  >
+                    <div className="text-center">
                       <div className="text-sm font-medium mb-1" style={{ color: '#000000' }}>{day.day}</div>
                       <div className="text-sm font-semibold mb-1" style={{ color: '#000000' }}>{day.workout}</div>
                       <div className="text-xs" style={{ color: '#000000' }}>{day.location}</div>
-                  {day.completed && <div className="text-green-600 text-xs mt-1">✓ Done</div>}
-                </div>
+                      {day.completed && <div className="text-green-600 text-xs mt-1">✓ Done</div>}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+
 
             {/* Exercise Details */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-white/20 max-h-[600px] flex flex-col">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-4 border border-white/20 flex flex-col">
               {/* Day Summary */}
-              <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200 h-[80px] flex flex-col justify-center flex-shrink-0">
+              <div className="mb-3 p-2 bg-gray-50 rounded-lg border border-gray-200 h-[70px] flex flex-col justify-center flex-shrink-0">
                 {selectedDay ? (
                   <>
                     <h4 className="font-semibold mb-1" style={{ color: '#000000' }}>
                       {weeklySchedule.find(d => d.day === selectedDay)?.workout} - {weeklySchedule.find(d => d.day === selectedDay)?.location}
                     </h4>
                     <p className="text-sm leading-relaxed" style={{ color: '#000000' }}>
-                      {getWorkoutDescription(selectedDay)}
+                      {getWorkoutDescription(selectedDay || "")}
                     </p>
                   </>
                 ) : (
@@ -843,44 +641,55 @@ export default function Home() {
               </div>
 
               {/* Exercise List */}
-              <div className="space-y-3 flex-1 overflow-y-auto">
-            {selectedDay ? (
-              getExercisesForDay(selectedDay).map((exercise) => (
-                <div
-                  key={exercise.id}
-                  className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                  onClick={() => setExpandedExercise(expandedExercise === exercise.id ? null : exercise.id)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                          <h4 className="font-semibold" style={{ color: '#000000' }}>{exercise.name}</h4>
-                          <p className="text-sm" style={{ color: '#000000' }}>{exercise.sets} • {exercise.reps}</p>
-                    </div>
-                    <div className="text-gray-400">
-                      {expandedExercise === exercise.id ? '▼' : '▶'}
-                    </div>
-                  </div>
-
-                  {expandedExercise === exercise.id && (
-                    <div className="mt-4 pt-4 border-t border-gray-100">
-                      <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2 flex-1 overflow-y-auto">
+                {selectedDay ? (
+                  getExercisesForDay(selectedDay || "").map((exercise: any) => (
+                    <div
+                      key={exercise.id}
+                      className="border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => setExpandedExercise(expandedExercise === exercise.id ? null : exercise.id)}
+                    >
+                      <div className="flex items-center justify-between">
                         <div>
-                              <h5 className="font-medium mb-2" style={{ color: '#000000' }}>AI Form Tips:</h5>
-                              <p className="text-sm mb-3" style={{ color: '#000000' }}>{exercise.tips}</p>
-                              <h5 className="font-medium mb-2" style={{ color: '#000000' }}>Equipment Location:</h5>
-                              <p className="text-sm" style={{ color: '#000000' }}>{exercise.equipment}</p>
+                          <h4 className="font-semibold" style={{ color: '#000000' }}>{exercise.name}</h4>
+                          <p className="text-sm" style={{ color: '#000000' }}>3 sets • {exercise.reps}</p>
                         </div>
-                        <div className="bg-gray-100 rounded-lg p-4 flex items-center justify-center">
-                          <div className="text-center text-gray-500">
-                            <div className="text-4xl mb-2">📹</div>
-                            <div className="text-sm">Preview Video</div>
-                          </div>
+                        <div className="text-gray-400">
+                          {expandedExercise === exercise.id ? '▼' : '▶'}
                         </div>
                       </div>
+
+                      {expandedExercise === exercise.id && (
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                              <h5 className="font-medium mb-1" style={{ color: '#000000' }}>Form Tips:</h5>
+                              <p className="text-sm mb-2" style={{ color: '#000000' }}>Keep your feet planted, squeeze your shoulder blades together, and lower the bar to your mid-chest in a controlled motion before pressing back up explosively.</p>
+                              <h5 className="font-medium mb-1" style={{ color: '#000000' }}>Equipment Location:</h5>
+                              <p className="text-sm" style={{ color: '#000000' }}>{exercise.equipment}</p>
+                            </div>
+                            <div className="bg-gray-100 rounded-lg p-3 flex items-center justify-center">
+                              {exercise.name === "Bench Press" ? (
+                                <video 
+                                  className="w-full aspect-square rounded-lg object-cover"
+                                  controls
+                                  preload="metadata"
+                                >
+                                  <source src="/bench press video.mp4" type="video/mp4" />
+                                  Your browser does not support the video tag.
+                                </video>
+                              ) : (
+                                <div className="text-center text-gray-500">
+                                  <div className="text-4xl mb-2">📹</div>
+                                  <div className="text-sm">Preview Video</div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              ))
+                  ))
                 ) : null}
               </div>
             </div>
@@ -897,131 +706,170 @@ export default function Home() {
 
             {/* Daily Nutrition Overview */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-6 border border-white/20">
-              <h3 className="text-xl font-semibold mb-6" style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}>
+              <h3 className="text-xl font-semibold mb-4" style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}>
                 Daily Nutrition
               </h3>
               
-              <div className="grid md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-sm" style={{ color: '#000000' }}>Daily Calories</h4>
-                    <div className="text-green-600">🔥</div>
-                  </div>
-                  <div className="text-2xl font-bold mb-1" style={{ color: '#000000' }}>2,200</div>
-                  <div className="text-xs" style={{ color: '#000000' }}>kcal</div>
-                </div>
-
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-sm" style={{ color: '#000000' }}>Protein</h4>
-                    <div className="text-blue-600">🥩</div>
-                  </div>
-                  <div className="text-2xl font-bold mb-1" style={{ color: '#000000' }}>165g</div>
-                  <div className="text-xs" style={{ color: '#000000' }}>per day</div>
-                </div>
-
-                <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-sm" style={{ color: '#000000' }}>Carbs</h4>
-                    <div className="text-orange-600">🍞</div>
-                  </div>
-                  <div className="text-2xl font-bold mb-1" style={{ color: '#000000' }}>275g</div>
-                  <div className="text-xs" style={{ color: '#000000' }}>per day</div>
-                </div>
-              </div>
-
-              {/* Meal Recommendations */}
-              <div className="bg-gray-50 rounded-xl p-4">
-                <h4 className="font-semibold mb-4 text-sm" style={{ color: '#000000' }}>Recommended Meals</h4>
-                <div className="max-h-[400px] overflow-y-auto space-y-3">
-                  {[
-                    {
-                      name: "Grilled Chicken Breast with Quinoa",
-                      calories: 420,
-                      diningHall: "Scott Traditions",
-                      description: "Lean protein with complex carbs"
-                    },
-                    {
-                      name: "Salmon Bowl with Sweet Potato",
-                      calories: 380,
-                      diningHall: "Kennedy Commons",
-                      description: "Omega-3 rich with beta-carotene"
-                    },
-                    {
-                      name: "Greek Yogurt Parfait",
-                      calories: 280,
-                      diningHall: "Morrill Traditions",
-                      description: "High protein breakfast option"
-                    },
-                    {
-                      name: "Turkey & Avocado Wrap",
-                      calories: 350,
-                      diningHall: "Scott Traditions",
-                      description: "Balanced macros for lunch"
-                    },
-                    {
-                      name: "Oatmeal with Berries",
-                      calories: 320,
-                      diningHall: "Kennedy Commons",
-                      description: "Fiber-rich morning fuel"
-                    },
-                    {
-                      name: "Grilled Fish Tacos",
-                      calories: 410,
-                      diningHall: "Morrill Traditions",
-                      description: "Lean protein with fresh veggies"
-                    },
-                    {
-                      name: "Protein Smoothie Bowl",
-                      calories: 290,
-                      diningHall: "Scott Traditions",
-                      description: "Post-workout recovery meal"
-                    },
-                    {
-                      name: "Chicken Caesar Salad",
-                      calories: 340,
-                      diningHall: "Kennedy Commons",
-                      description: "Classic with lean protein"
-                    },
-                    {
-                      name: "Veggie Stir Fry with Brown Rice",
-                      calories: 360,
-                      diningHall: "Morrill Traditions",
-                      description: "Plant-based protein option"
-                    },
-                    {
-                      name: "Egg White Omelet",
-                      calories: 250,
-                      diningHall: "Scott Traditions",
-                      description: "High protein, low calorie"
-                    },
-                    {
-                      name: "Grilled Turkey Burger",
-                      calories: 390,
-                      diningHall: "Kennedy Commons",
-                      description: "Lean protein with whole grain bun"
-                    },
-                    {
-                      name: "Quinoa Buddha Bowl",
-                      calories: 430,
-                      diningHall: "Morrill Traditions",
-                      description: "Complete amino acid profile"
-                    }
-                  ].map((meal, index) => (
-                    <div key={index} className="bg-white rounded-lg p-3 border border-gray-200 hover:shadow-md transition-shadow">
-                      <div className="flex items-center justify-between mb-2">
-                        <h5 className="font-medium text-sm" style={{ color: '#000000' }}>{meal.name}</h5>
-                        <span className="text-sm font-semibold text-blue-600">{meal.calories} cal</span>
+              {fitnessAnalysis?.nutrition ? (
+                <>
+                  <div className="grid md:grid-cols-4 gap-3 mb-4">
+                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-semibold text-xs" style={{ color: '#000000' }}>Calories</h4>
+                        <div className="text-green-600 text-sm">🔥</div>
                       </div>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-gray-600">📍 {meal.diningHall}</span>
-                        <span style={{ color: '#000000' }}>{meal.description}</span>
+                      <div className="text-lg font-bold" style={{ color: '#000000' }}>
+                        {fitnessAnalysis.nutrition.tdee || 'N/A'}
                       </div>
                     </div>
-                  ))}
+
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-3 border border-blue-200">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-semibold text-xs" style={{ color: '#000000' }}>Protein</h4>
+                        <div className="text-blue-600 text-sm">🥩</div>
+                      </div>
+                      <div className="text-lg font-bold" style={{ color: '#000000' }}>
+                        {fitnessAnalysis.nutrition.macros?.protein || 'N/A'}g
+                      </div>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-3 border border-orange-200">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-semibold text-xs" style={{ color: '#000000' }}>Carbs</h4>
+                        <div className="text-orange-600 text-sm">🍞</div>
+                      </div>
+                      <div className="text-lg font-bold" style={{ color: '#000000' }}>
+                        {fitnessAnalysis.nutrition.macros?.carbs || 'N/A'}g
+                      </div>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-3 border border-purple-200">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-semibold text-xs" style={{ color: '#000000' }}>Fats</h4>
+                        <div className="text-purple-600 text-sm">🥑</div>
+                      </div>
+                      <div className="text-lg font-bold" style={{ color: '#000000' }}>
+                        {fitnessAnalysis.nutrition.macros?.fats || 'N/A'}g
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Compact Meal Recommendations */}
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <h4 className="font-semibold mb-3 text-sm" style={{ color: '#000000' }}>Sample Meals</h4>
+                    <div className="max-h-[400px] overflow-y-auto space-y-2">
+                      {fitnessAnalysis?.nutrition?.meals ? (
+                        <>
+                          {/* Breakfast */}
+                          {fitnessAnalysis.nutrition.meals.breakfast && (
+                            <div className="bg-white rounded p-2 border border-gray-200">
+                              <div className="flex justify-between items-center mb-1">
+                                <h5 className="font-medium text-xs" style={{ color: '#000000' }}>
+                                  {fitnessAnalysis.nutrition.meals.breakfast.name}
+                                </h5>
+                                <span className="text-xs text-gray-600">
+                                  {fitnessAnalysis.nutrition.meals.breakfast.calories} cal
+                                </span>
+                              </div>
+                              <div className="text-xs text-gray-600 mb-1">
+                                P: {fitnessAnalysis.nutrition.meals.breakfast.protein}g | 
+                                C: {fitnessAnalysis.nutrition.meals.breakfast.carbs}g | 
+                                F: {fitnessAnalysis.nutrition.meals.breakfast.fats}g
+                              </div>
+                              <div className="text-xs text-blue-600 mb-1">
+                                📍 {fitnessAnalysis.nutrition.meals.breakfast.location}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {fitnessAnalysis.nutrition.meals.breakfast.ingredients?.join(' • ')}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Lunch */}
+                          {fitnessAnalysis.nutrition.meals.lunch && (
+                            <div className="bg-white rounded p-2 border border-gray-200">
+                              <div className="flex justify-between items-center mb-1">
+                                <h5 className="font-medium text-xs" style={{ color: '#000000' }}>
+                                  {fitnessAnalysis.nutrition.meals.lunch.name}
+                                </h5>
+                                <span className="text-xs text-gray-600">
+                                  {fitnessAnalysis.nutrition.meals.lunch.calories} cal
+                                </span>
+                              </div>
+                              <div className="text-xs text-gray-600 mb-1">
+                                P: {fitnessAnalysis.nutrition.meals.lunch.protein}g | 
+                                C: {fitnessAnalysis.nutrition.meals.lunch.carbs}g | 
+                                F: {fitnessAnalysis.nutrition.meals.lunch.fats}g
+                              </div>
+                              <div className="text-xs text-blue-600 mb-1">
+                                📍 {fitnessAnalysis.nutrition.meals.lunch.location}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {fitnessAnalysis.nutrition.meals.lunch.ingredients?.join(' • ')}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Dinner */}
+                          {fitnessAnalysis.nutrition.meals.dinner && (
+                            <div className="bg-white rounded p-2 border border-gray-200">
+                              <div className="flex justify-between items-center mb-1">
+                                <h5 className="font-medium text-xs" style={{ color: '#000000' }}>
+                                  {fitnessAnalysis.nutrition.meals.dinner.name}
+                                </h5>
+                                <span className="text-xs text-gray-600">
+                                  {fitnessAnalysis.nutrition.meals.dinner.calories} cal
+                                </span>
+                              </div>
+                              <div className="text-xs text-gray-600 mb-1">
+                                P: {fitnessAnalysis.nutrition.meals.dinner.protein}g | 
+                                C: {fitnessAnalysis.nutrition.meals.dinner.carbs}g | 
+                                F: {fitnessAnalysis.nutrition.meals.dinner.fats}g
+                              </div>
+                              <div className="text-xs text-blue-600 mb-1">
+                                📍 {fitnessAnalysis.nutrition.meals.dinner.location}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {fitnessAnalysis.nutrition.meals.dinner.ingredients?.join(' • ')}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Snacks */}
+                          {fitnessAnalysis.nutrition.meals.snacks && fitnessAnalysis.nutrition.meals.snacks.map((snack: any, index: number) => (
+                            <div key={index} className="bg-white rounded p-2 border border-gray-200">
+                              <div className="flex justify-between items-center mb-1">
+                                <h5 className="font-medium text-xs" style={{ color: '#000000' }}>
+                                  {snack.name}
+                                </h5>
+                                <span className="text-xs text-gray-600">
+                                  {snack.calories} cal
+                                </span>
+                              </div>
+                              <div className="text-xs text-gray-600 mb-1">
+                                P: {snack.protein}g | C: {snack.carbs}g | F: {snack.fats}g
+                              </div>
+                              <div className="text-xs text-blue-600">
+                                📍 {snack.location}
+                              </div>
+                            </div>
+                          ))}
+                        </>
+                      ) : (
+                        <div className="text-center py-2 text-gray-500">
+                          <p className="text-xs">Loading meal recommendations...</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                  <p className="text-gray-600 text-sm">Loading nutrition recommendations...</p>
                 </div>
-              </div>
-          </div>
+              )}
+            </div>
           </section>
         </div>
       </div>
