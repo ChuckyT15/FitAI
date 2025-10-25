@@ -199,13 +199,13 @@ export default function Intro() {
       {/* Hero Section */}
       <div className="min-h-screen flex items-center justify-center relative z-10">
         <div className="text-center">
-          <h1 className="text-8xl md:text-5xl font-bold text-black mb-8" style={{ fontFamily: 'Playfair Display, serif' }}>
+          <h1 className="text-8xl md:text-5xl font-bold text-black mb-8" style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}>
             FitAI
           </h1>
           <button
             onClick={scrollToForm}
-            className="bg-gray-800/20 backdrop-blur-sm text-black px-8 py-3 rounded-lg font-medium text-lg hover:bg-gray-800/30 transition-all duration-300 border border-gray-600/30 hover:border-gray-600/50 inline-block"
-            style={{ fontFamily: 'Playfair Display, serif' }}
+            className="bg-gray-800/20 backdrop-blur-sm px-8 py-3 rounded-lg font-medium text-lg hover:bg-gray-800/30 transition-all duration-300 border border-gray-600/30 hover:border-gray-600/50 inline-block"
+            style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}
           >
             Get Started
           </button>
@@ -217,10 +217,10 @@ export default function Intro() {
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-6 md:p-8 w-full max-w-lg border border-white/20">
           {/* Header */}
           <div className="text-center mb-6">
-            <h1 className="text-3xl md:text-4xl font-semibold text-gray-800 mb-3" style={{ fontFamily: 'Playfair Display, serif' }}>
+            <h1 className="text-3xl md:text-4xl font-semibold mb-3" style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}>
               Tell Us About Yourself
             </h1>
-            <p className="text-gray-500 text-sm">
+            <p className="text-sm" style={{ color: '#000000' }}>
               Help us create your perfect workout plan
             </p>
           </div>
@@ -230,7 +230,7 @@ export default function Intro() {
             {/* Personal Information */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
+                <label className="block text-xs font-medium mb-1" style={{ color: '#000000' }}>
                   Height (cm)
                 </label>
                 <input
@@ -240,7 +240,7 @@ export default function Intro() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
+                <label className="block text-xs font-medium mb-1" style={{ color: '#000000' }}>
                   Weight (kg)
                 </label>
                 <input
@@ -253,7 +253,7 @@ export default function Intro() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
+                <label className="block text-xs font-medium mb-1" style={{ color: '#000000' }}>
                   Age
                 </label>
                 <input
@@ -263,7 +263,7 @@ export default function Intro() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
+                <label className="block text-xs font-medium mb-1" style={{ color: '#000000' }}>
                   Gender
                 </label>
                 <select className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm">
@@ -277,7 +277,7 @@ export default function Intro() {
 
             {/* Fitness Level */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label className="block text-xs font-medium mb-1" style={{ color: '#000000' }}>
                 Fitness Level
               </label>
               <select className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm">
@@ -290,7 +290,7 @@ export default function Intro() {
 
             {/* Goals */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label className="block text-xs font-medium mb-1" style={{ color: '#000000' }}>
                 Primary Goal
               </label>
               <select className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm">
@@ -308,15 +308,15 @@ export default function Intro() {
             <div className="flex gap-3 pt-4">
               <button
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="flex-1 bg-gray-100 text-gray-600 px-4 py-2 rounded-full font-medium text-sm hover:bg-gray-200 transition-colors text-center"
-                style={{ fontFamily: 'Playfair Display, serif' }}
+                className="flex-1 bg-gray-100 px-4 py-2 rounded-full font-medium text-sm hover:bg-gray-200 transition-colors text-center"
+                style={{ fontFamily: 'Playfair Display, serif', color: '#000000' }}
               >
                 Back to Top
               </button>
               <Link
                 to="/camera"
-                className="flex-1 bg-gray-800 text-white px-4 py-2 rounded-full font-medium text-sm hover:bg-gray-900 transition-all duration-300 text-center hover:scale-105"
-                style={{ fontFamily: 'Playfair Display, serif' }}
+                className="flex-1 bg-gray-800 px-4 py-2 rounded-full font-medium text-sm hover:bg-gray-900 transition-all duration-300 text-center hover:scale-105"
+                style={{ fontFamily: 'Playfair Display, serif', color: '#FFFFFF' }}
               >
                 Next Page
               </Link>
