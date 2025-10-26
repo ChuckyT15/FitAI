@@ -1,87 +1,77 @@
-# Welcome to React Router!
+ChatGPT said:
+FitAI — README 💪🏽
 
-A modern, production-ready template for building full-stack React applications using React Router.
+FitAI is a web app built to remove the fear of beginning at the gym — starting with students at The Ohio State University.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+Using AI-powered body scanning (TensorFlow) and the Gemini API, FitAI creates a personalized workout and diet plan based on each user’s body type and goals. It also connects to a PostgreSQL database that includes Ohio State’s dining and gym information, making the plans relevant, convenient, and realistic for OSU students.
 
-## Features
+🚀 Why FitAI
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+Starting a fitness journey can be intimidating — especially for beginners who don’t know where to start, what workouts to do, or what to eat. FitAI makes that process easier by combining AI guidance, real data, and friendly interaction in one clean, intuitive app.
 
-## Getting Started
+✨ Core Features
 
-### Installation
+🧠 AI-powered personalization — Uses TensorFlow for body scanning and Gemini API for generating tailored workout and diet plans.
 
-Install the dependencies:
+💬 Smart chatbot — Lets users ask fitness or nutrition questions and get instant, encouraging responses.
 
-```bash
+🏋️ OSU integration — Pulls data from Ohio State’s gym locations and dining options to suggest workouts and meals students can actually follow.
+
+🎨 Clean React frontend — Modern, interactive, and mobile-friendly interface focused on comfort and confidence.
+
+🗃️ PostgreSQL backend — Stores user data, fitness progress, and OSU facility info.
+
+🧩 Tech Stack
+
+Frontend: React + TailwindCSS
+
+AI/ML: TensorFlow.js + Gemini API
+
+Backend: Node.js / Express
+
+Database: PostgreSQL (OSU-specific data)
+
+🧭 Future Roadmap
+
+FitAI’s long-term vision is to expand beyond Ohio State and bring the same personalized experience to colleges and cities nationwide — connecting local gyms, dining halls, and healthy spots everywhere.
+
+Planned features include:
+
+🌎 Expansion to multiple universities and cities
+
+🍽️ Dynamic local meal recommendations
+
+🎥 AI-powered form correction and progress tracking
+
+🏆 Achievement system to motivate consistency
+
+❤️ Our Mission
+
+To make fitness accessible, personalized, and fear-free — helping students build habits that last long after college.
+
+⚙️ How to Run Locally
+1. Clone the repository
+git clone https://github.com/yourusername/fitai.git
+cd fitai
+
+2. Install dependencies
 npm install
-```
 
-### Development
+3. Set up environment variables
 
-Start the development server with HMR:
+Create a .env file in the project root with:
 
-```bash
+GEMINI_API_KEY=your_api_key_here
+DATABASE_URL=postgresql://postgres:password@localhost:5432/fitai
+
+4. Start the development server
 npm run dev
-```
 
-Your application will be available at `http://localhost:5173`.
 
-## Building for Production
+Then open http://localhost:3000
+ to view FitAI in your browser.
 
-Create a production build:
+📈 In Summary
 
-```bash
-npm run build
-```
-
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
-
-```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
+FitAI isn’t just another fitness app — it’s a confidence builder.
+By blending AI, real campus data, and approachable design, it helps students take their first step toward lifelong health — one personalized plan at a time.
