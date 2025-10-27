@@ -1,6 +1,3 @@
-ChatGPT said:
-FitAI — README 💪🏽
-
 FitAI is a web app built to remove the fear of beginning at the gym — starting with students at The Ohio State University.
 
 Using AI-powered body scanning (TensorFlow) and the Gemini API, FitAI creates a personalized workout and diet plan based on each user’s body type and goals. It also connects to a PostgreSQL database that includes Ohio State’s dining and gym information, making the plans relevant, convenient, and realistic for OSU students.
